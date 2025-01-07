@@ -25,8 +25,10 @@ def fcfs(p, at: list, cbt: list, cs=1):
     return WT, TT, timeline
 
 
-def create_gantt_figure(timeline, cs):
-    from matplotlib.figure import Figure
+def create_gantt_figure(timeline, cs=None):
+
+    if cs is None:
+        cs=0
 
     fig = Figure(figsize=(10, 4), dpi=100)
     ax = fig.add_subplot(111)
@@ -34,7 +36,7 @@ def create_gantt_figure(timeline, cs):
 
     for i, process in enumerate(timeline):
         index, start, end = process
-
+            
         # Draw the process bar
         ax.broken_barh([(start, end - start)], (index - 0.4, 0.8), facecolors='tab:blue')
 
@@ -81,7 +83,7 @@ class App(customtkinter.CTk):
 
         
         
-        ## hole screen\
+        ## hole screen
         self.title("first try")
         self.columnconfigure(0, weight=0, minsize=300)
         self.columnconfigure(1, weight=1)
@@ -235,7 +237,6 @@ class App(customtkinter.CTk):
 
 
 
-
     ## if any pre_emptive algorithm choose
     def frame0_2(self):
         for widget in self.frame0_1.winfo_children():
@@ -289,16 +290,24 @@ class App(customtkinter.CTk):
     
         
     def draw_plot(self):
-        
-
         try:
             p = int(self.entry0.get())  # تعداد فرآیندها
-            cs = int(self.entry1.get())  # زمان تعویض متن
+            cs = int(self.entry1.get()) if self.entry1.get() else 0
             at = list(map(int, self.entry2.get().split()))  # زمان‌های ورود
             cbt = list(map(int, self.entry3.get().split()))  # زمان‌های اجرای فرآیندها
 
+            for widget in self.plotframe1.winfo_children():
+                widget.destroy() 
+
             if len(at) != p or len(cbt) != p:
-                raise ValueError("Number of processes does not match input data!")
+                label = customtkinter.CTkLabel(
+                    self.plotframe1,
+                    text="Number of processes does not match input data!",
+                    text_color="red",
+                    font=customtkinter.CTkFont(size=14, weight="bold")
+                )
+                label.pack(pady=20)
+                return
 
             _, _, timeline = fcfs(p, at, cbt, cs)
 
@@ -314,11 +323,18 @@ class App(customtkinter.CTk):
             canvas.draw()
 
         except ValueError as e:
-            print(f"Error in input: {e}")
-
-        
+            for widget in self.plotframe1.winfo_children():
+                widget.destroy()
+            label = customtkinter.CTkLabel(
+                self.plotframe1,
+                text=f"input error!",
+                text_color="red",
+                font=customtkinter.CTkFont(size=14, weight="bold")
+            )
+            label.pack(pady=20)
 
 
 app = App()
 app.mainloop()
+
 

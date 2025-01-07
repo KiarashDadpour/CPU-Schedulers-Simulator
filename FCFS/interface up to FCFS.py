@@ -235,13 +235,6 @@ class App(customtkinter.CTk):
 
 
 
-        self.p = None    
-        self.cs = None      
-        self.qt = None    
-        self.at = None     
-        self.cbt = None     
-
-
 
     ## if any pre_emptive algorithm choose
     def frame0_2(self):
@@ -324,101 +317,7 @@ class App(customtkinter.CTk):
             print(f"Error in input: {e}")
 
         
-        # def fcfs(p, at: list, cbt: list, cs=1):
-        #     current_time = 0
-        #     WT = []
-        #     TT = []
-        #     timeline = []  # For Gantt chart
 
-        #     for process in range(p):
-        #         start_time = max(current_time, at[process])
-        #         end_time = start_time + cbt[process]
-        #         wt = start_time - at[process]
-        #         tt = end_time - at[process]
-        #         WT.append(wt)
-        #         TT.append(tt)
-        #         timeline.append((process + 1, start_time, end_time))  # (PID, Start Time, End Time)
-        #         current_time = end_time + cs  # Add context switch time
-
-        #     return WT, TT, timeline
-        
-        # def create_gantt_figure(timeline, cs):
-        #     fig = Figure(figsize=(10, 4), dpi=100)
-        #     ax = fig.add_subplot(111)
-        #     half_cs = cs / 2
-
-        #     for i, process in enumerate(timeline):
-        #         index, start, end = process
-
-        #         # Draw the process bar
-        #         ax.broken_barh([(start, end - start)], (index - 0.4, 0.8), facecolors='tab:blue')
-
-        #         # Draw half CS at the end of the current process
-        #         if cs > 0 and i < len(timeline) - 1:
-        #             cs_start = end
-        #             ax.broken_barh([(cs_start, half_cs)], (index - 0.4, 0.8), facecolors='tab:red', alpha=0.5)
-
-        #         # Draw half CS at the start of the next process
-        #         if cs > 0 and i < len(timeline) - 1:
-        #             next_start = timeline[i + 1][1]
-        #             cs_start_next = next_start - half_cs
-        #             ax.broken_barh([(cs_start_next, half_cs)], (timeline[i + 1][0] - 0.4, 0.8), facecolors='tab:orange', alpha=0.5)
-
-        #     # Add half CS to the end of the last process
-        #     if cs > 0:
-        #         last_process_end = timeline[-1][2]
-        #         ax.broken_barh([(last_process_end, half_cs)], (len(timeline) - 0.4, 0.8), facecolors='tab:green', alpha=0.5)
-
-        #     ax.set_ylim(0, len(timeline) + 1)
-        #     ax.set_xlim(0, max(t[2] for t in timeline) + cs)
-        #     ax.set_xlabel("Time")
-        #     ax.set_ylabel("Processes")
-        #     ax.set_yticks([t[0] for t in timeline])
-        #     ax.set_yticklabels([f"P{t[0]}" for t in timeline])
-        #     ax.grid(True)
-        #     ax.set_title("FCFS Gantt Chart")
-
-        #     return fig
-
-
-        # p = 5
-        # at = [0, 2, 3, 4, 5]
-        # cbt = [10, 8, 3, 7, 12]
-        # cs = 1  
-        # FCFS Calculation
-
-
-            
-    
-        
-        
-    
-    # ## if click button on entry frame (when you want to draw plot)
-    # def draw_plot(self):
-        
-    #     # Clear existing widgets in the plot frame
-        # for widget in self.plotframe1.winfo_children():
-        #   widget.destroy()
-
-    #     # Example data
-    #     x = [1, 2, 3, 4, 5]
-    #     y = [10, 20, 15, 25, 30]
-
-    #     # Create a matplotlib figure
-    #     fig = Figure(figsize=(6, 4), dpi=100)
-    #     ax = fig.add_subplot(111)
-    #     ax.plot(x, y, label="Sample Data", color="blue", marker="o")
-    #     ax.set_title("Sample Plot")
-    #     ax.set_xlabel("X-axis")
-    #     ax.set_ylabel("Y-axis")
-    #     ax.legend()
-
-    #     # Embed the matplotlib figure into the Tkinter frame
-        # canvas = FigureCanvasTkAgg(fig, self.plotframe1)
-        # canvas.get_tk_widget().pack(fill="both", expand=True)
-        # canvas.draw()
-        
-        
 
 app = App()
 app.mainloop()

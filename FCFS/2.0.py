@@ -62,7 +62,7 @@ def plot_gantt(timeline, cs):
     ax.grid(True)
     max_time = max(t[2] for t in timeline) + cs
     ax.set_xticks(range(0, max_time + 1, 2))
-    plt.title("Gantt Chart (FCFS with Split Context Switch)")
+    plt.title("FCFS")
     plt.show()
 
 

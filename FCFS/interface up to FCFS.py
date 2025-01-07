@@ -1,0 +1,425 @@
+import customtkinter
+from matplotlib.figure import Figure
+# import matplotlib as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+# customtkinter.set_appearance_mode("dark")
+# customtkinter.set_default_color_theme("dark-blue")
+
+def fcfs(p, at: list, cbt: list, cs=1):
+    current_time = 0
+    WT = []
+    TT = []
+    timeline = []  # For Gantt chart
+
+    for process in range(p):
+        start_time = max(current_time, at[process])
+        end_time = start_time + cbt[process]
+        wt = start_time - at[process]
+        tt = end_time - at[process]
+        WT.append(wt)
+        TT.append(tt)
+        timeline.append((process + 1, start_time, end_time))  # (PID, Start Time, End Time)
+        current_time = end_time + cs  # Add context switch time
+
+    return WT, TT, timeline
+
+
+def create_gantt_figure(timeline, cs):
+    from matplotlib.figure import Figure
+
+    fig = Figure(figsize=(10, 4), dpi=100)
+    ax = fig.add_subplot(111)
+    half_cs = cs / 2
+
+    for i, process in enumerate(timeline):
+        index, start, end = process
+
+        # Draw the process bar
+        ax.broken_barh([(start, end - start)], (index - 0.4, 0.8), facecolors='tab:blue')
+
+        # Draw half CS at the end of the current process
+        if cs > 0 and i < len(timeline) - 1:
+            cs_start = end
+            ax.broken_barh([(cs_start, half_cs)], (index - 0.4, 0.8), facecolors='tab:red', alpha=0.5)
+
+        # Draw half CS at the start of the next process
+        if cs > 0 and i < len(timeline) - 1:
+            next_start = timeline[i + 1][1]
+            cs_start_next = next_start - half_cs
+            ax.broken_barh([(cs_start_next, half_cs)], (timeline[i + 1][0] - 0.4, 0.8), facecolors='tab:orange', alpha=0.5)
+            
+        if cs > 0:
+            last_process_end = timeline[-1][2]
+            ax.broken_barh([(last_process_end, half_cs)], (len(timeline) - 0.4, 0.8), facecolors='tab:green', alpha=0.5)
+
+    ax.set_ylim(0, len(timeline) + 1)
+    ax.set_xlim(0, max(t[2] for t in timeline) + cs)
+    ax.set_xlabel("Time")
+    ax.set_ylabel("Processes")
+    ax.set_yticks([t[0] for t in timeline])
+    ax.set_yticklabels([f"P{t[0]}" for t in timeline])
+    ax.grid(True)
+    max_time = max(t[2] for t in timeline) + cs
+    ax.set_xticks(range(0, max_time + 1, 2))
+    ax.set_title("FCFS Gantt Chart")
+
+    return fig
+
+
+class App(customtkinter.CTk):
+    def __init__(self):
+        super().__init__()
+        
+        
+        
+        ## screen size
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()       
+        self.geometry(f"{screen_width}x{screen_height}")
+        
+
+        
+        
+        ## hole screen\
+        self.title("first try")
+        self.columnconfigure(0, weight=0, minsize=300)
+        self.columnconfigure(1, weight=1)
+        self.columnconfigure(2, weight=0, minsize=300)
+        self.rowconfigure(0, weight=1)
+        
+        
+        
+        
+        ## slidebar
+        self.sidebar_frame = customtkinter.CTkFrame(self)
+        self.sidebar_frame.grid(row=0, column=0, sticky="nsew")   
+        
+        self.sidebar_frame.rowconfigure(0, weight=0, minsize=350)
+        self.sidebar_frame.rowconfigure(1, weight=1)
+        self.sidebar_frame.columnconfigure(0, weight=1)   
+        
+        
+        
+        
+        ## Tabview in slide bar
+        self.tabview = customtkinter.CTkTabview(self.sidebar_frame)
+        self.tabview.grid(row=0, column=0, padx=10, pady=(5, 10), sticky="nsew")
+        
+        
+            ## Non-preemptive Tab
+        self.tabview.add("non pre-emptive")
+        self.radio_var_non_preemptive = customtkinter.StringVar(value="Option 1")
+        
+        
+                ## non pre-emptive radio buttons 
+        FCFS=customtkinter.CTkRadioButton(self.tabview.tab("non pre-emptive"),
+            text=f"FCFS",
+            variable=self.radio_var_non_preemptive,
+            value=f"FCFS")
+        FCFS.pack(pady=(20,10))
+        
+        
+        SPN=customtkinter.CTkRadioButton(
+            self.tabview.tab("non pre-emptive"),
+            text=f"SPN",
+            variable=self.radio_var_non_preemptive,
+            value=f"SPN")
+        SPN.pack(pady=10)
+        
+        
+        HRRN=customtkinter.CTkRadioButton(
+            self.tabview.tab("non pre-emptive"),
+            text=f"HRRN",
+            variable=self.radio_var_non_preemptive,
+            value=f"HRRN")
+        HRRN.pack(pady=10)
+     
+                ## non pre-emptive button
+        self.show_button_non_preemptive = customtkinter.CTkButton(
+            self.tabview.tab("non pre-emptive"),
+            text="choose",
+            command=self.frame0_3)
+        self.show_button_non_preemptive.pack(pady=(100,10))
+        
+        
+            ## Preemptive Tab
+        self.tabview.add("pre-emptive")
+        self.radio_var_preemptive = customtkinter.StringVar(value="Option 2")
+        
+        
+                ## pre-emptive radio buttons                      
+        RR=customtkinter.CTkRadioButton(
+                self.tabview.tab("pre-emptive"),
+                text=f"RR",
+                variable=self.radio_var_preemptive,
+                value=f"RR")
+        RR.pack(pady=(20,10))
+        
+        
+        SRTF=customtkinter.CTkRadioButton(
+                self.tabview.tab("pre-emptive"),
+                text=f"SRTF",
+                variable=self.radio_var_preemptive,
+                value=f"SRTF")
+        SRTF.pack(pady=10)
+        
+    
+        MLFQ=customtkinter.CTkRadioButton(
+            self.tabview.tab("pre-emptive"),
+            text=f"MLFQ",
+            variable=self.radio_var_non_preemptive,
+            value=f"MLFQ")
+        MLFQ.pack(pady=10)
+        
+        
+                ## pre-emptive button
+        self.show_button_preemptive = customtkinter.CTkButton(
+            self.tabview.tab("pre-emptive"),
+            text="choose",
+            command=self.frame0_2
+        )
+        self.show_button_preemptive.pack(pady=(100,10))
+        
+        
+        
+        
+        ## frame0 in slide bar
+        self.frame0 = customtkinter.CTkFrame(self.sidebar_frame)
+        self.frame0.grid(row=1, column=0, sticky="nsew", padx=10, pady=(5, 15))
+        
+        self.frame0.columnconfigure(0, weight=1)  
+        self.frame0.rowconfigure(0, weight=0)     
+        self.frame0.rowconfigure(1, weight=1)
+        
+        self.label_frame0 = customtkinter.CTkLabel(
+            self.frame0,
+            text="Entry place:",
+            text_color=("#495155", "#D3D8DB"),
+            font=customtkinter.CTkFont(size=20, weight="bold"),
+            corner_radius=5,
+            fg_color="transparent")
+        self.label_frame0.grid(row=0, column=0, pady=10, padx=10, sticky="nw")  
+        
+        
+            ## button in frame0
+        self.button_frame0 = customtkinter.CTkButton(self.frame0, text="click", command=self.draw_plot)
+        self.button_frame0.grid(row=3, column=0, sticky="s", padx=10, pady=(5,15))
+        
+        
+        ## frame0_1 in frame0
+        self.frame0_1 = customtkinter.CTkFrame(self.frame0)
+        self.frame0_1.grid(row=1, column=0, pady=10, padx=10, sticky="nsew")
+        
+        
+        ## plot frame
+        self.plotframe = customtkinter.CTkFrame(self)
+        self.plotframe.grid(row=0, column=1, padx=(10,5), sticky="nsew")
+        self.plotframe.columnconfigure(0, weight=1)
+        self.plotframe.rowconfigure(1, weight=1)
+        
+        self.labelplotframe = customtkinter.CTkLabel(self.plotframe,
+                                                     text="plot frame:",
+                                                     text_color=("#495155", "#D3D8DB"),
+                                                     font=customtkinter.CTkFont(size=20, weight="bold"),
+                                                     corner_radius=5,fg_color="transparent")
+        self.labelplotframe.grid(row=0, column=0, pady=10, padx=10, sticky="new")
+        
+        self.plotframe1 = customtkinter.CTkFrame(self.plotframe)
+        self.plotframe1.grid(row=1, column=0, pady=10, padx=10, sticky="nsew" )
+        
+        
+        ## informationFrame
+        self.infFrame = customtkinter.CTkFrame(self)
+        self.infFrame.grid(row=0, column=2, padx=(5,10), sticky="nsew")
+
+
+
+        self.p = None    
+        self.cs = None      
+        self.qt = None    
+        self.at = None     
+        self.cbt = None     
+
+
+
+    ## if any pre_emptive algorithm choose
+    def frame0_2(self):
+        for widget in self.frame0_1.winfo_children():
+            widget.destroy()
+        # label = customtkinter.CTkLabel(self.frame0_1, text=f"Preemptive Selected: {self.radio_var_preemptive.get()}")
+        # label.pack(pady=10)
+        
+        self.entry0 = customtkinter.CTkEntry(self.frame0_1, placeholder_text="numbers of processes: ")
+        self.entry0.grid(row=1, column=0, padx=(20, 0), pady=(20, 20), sticky="nsw")
+        
+        self.entry1 = customtkinter.CTkEntry(self.frame0_1, placeholder_text="context swich: ")
+        self.entry1.grid(row=2, column=0, padx=(20, 0), pady=(20, 20), sticky="nsw")
+        
+        self.entry2 = customtkinter.CTkEntry(self.frame0_1, placeholder_text="quantom time: ")
+        self.entry2.grid(row=3, column=0, padx=(20, 0), pady=(20, 20), sticky="nsw")
+        
+        self.entry3 = customtkinter.CTkEntry(self.frame0_1, placeholder_text="AT ")
+        # AT=self.entry3.get().split(" ")
+        self.entry3.grid(row=4, column=0, padx=(20, 0), pady=(20, 20), sticky="nsw")
+        
+        self.entry4 = customtkinter.CTkEntry(self.frame0_1, placeholder_text="CBT ")
+        # CBT=self.entry3.get().split(" ")
+        self.entry4.grid(row=5, column=0, padx=(20, 0), pady=(20, 20), sticky="nsw")
+        
+    
+        
+    ## if any non pre_emptive algorithm choose    
+    def frame0_3(self):
+        for widget in self.frame0_1.winfo_children():
+            widget.destroy()
+        # label = customtkinter.CTkLabel(self.frame0_1, text=f"Non Preemptive Selected: {self.radio_var_non_preemptive.get()}")
+        # label.pack(pady=10)
+        
+        self.entry0 = customtkinter.CTkEntry(self.frame0_1, placeholder_text="numbers of processes: ")
+        self.entry0.grid(row=1, column=0, padx=(20, 0), pady=(20, 20), sticky="nsw")
+        
+        # self.p=self.entry0.get()
+        self.entry1 = customtkinter.CTkEntry(self.frame0_1, placeholder_text="context swich:")
+        self.entry1.grid(row=2, column=0, padx=(20, 0), pady=(20, 20), sticky="nsw")
+        
+        # self.cs=self.entry1.get()
+        self.entry2 = customtkinter.CTkEntry(self.frame0_1, placeholder_text="AT ")
+        # self.at=self.entry2.get().split(" ")
+        self.entry2.grid(row=3, column=0, padx=(20, 0), pady=(20, 20), sticky="nsw")
+        
+        self.entry3 = customtkinter.CTkEntry(self.frame0_1, placeholder_text="CBT")
+        # self.cbt=self.entry3.get().split(" ")
+        self.entry3.grid(row=4, column=0, padx=(20, 0), pady=(20, 20), sticky="nsw")
+    
+    
+    
+        
+    def draw_plot(self):
+        
+
+        try:
+            p = int(self.entry0.get())  # تعداد فرآیندها
+            cs = int(self.entry1.get())  # زمان تعویض متن
+            at = list(map(int, self.entry2.get().split()))  # زمان‌های ورود
+            cbt = list(map(int, self.entry3.get().split()))  # زمان‌های اجرای فرآیندها
+
+            if len(at) != p or len(cbt) != p:
+                raise ValueError("Number of processes does not match input data!")
+
+            _, _, timeline = fcfs(p, at, cbt, cs)
+
+            # Create the figure
+            fig = create_gantt_figure(timeline, cs)
+
+            # Embed the figure in the canvas
+            for widget in self.plotframe1.winfo_children():
+                widget.destroy()  # Clear previous chart if exists
+            canvas = FigureCanvasTkAgg(fig, self.plotframe1)
+            canvas_widget = canvas.get_tk_widget()
+            canvas_widget.pack(fill="both", expand=True)
+            canvas.draw()
+
+        except ValueError as e:
+            print(f"Error in input: {e}")
+
+        
+        # def fcfs(p, at: list, cbt: list, cs=1):
+        #     current_time = 0
+        #     WT = []
+        #     TT = []
+        #     timeline = []  # For Gantt chart
+
+        #     for process in range(p):
+        #         start_time = max(current_time, at[process])
+        #         end_time = start_time + cbt[process]
+        #         wt = start_time - at[process]
+        #         tt = end_time - at[process]
+        #         WT.append(wt)
+        #         TT.append(tt)
+        #         timeline.append((process + 1, start_time, end_time))  # (PID, Start Time, End Time)
+        #         current_time = end_time + cs  # Add context switch time
+
+        #     return WT, TT, timeline
+        
+        # def create_gantt_figure(timeline, cs):
+        #     fig = Figure(figsize=(10, 4), dpi=100)
+        #     ax = fig.add_subplot(111)
+        #     half_cs = cs / 2
+
+        #     for i, process in enumerate(timeline):
+        #         index, start, end = process
+
+        #         # Draw the process bar
+        #         ax.broken_barh([(start, end - start)], (index - 0.4, 0.8), facecolors='tab:blue')
+
+        #         # Draw half CS at the end of the current process
+        #         if cs > 0 and i < len(timeline) - 1:
+        #             cs_start = end
+        #             ax.broken_barh([(cs_start, half_cs)], (index - 0.4, 0.8), facecolors='tab:red', alpha=0.5)
+
+        #         # Draw half CS at the start of the next process
+        #         if cs > 0 and i < len(timeline) - 1:
+        #             next_start = timeline[i + 1][1]
+        #             cs_start_next = next_start - half_cs
+        #             ax.broken_barh([(cs_start_next, half_cs)], (timeline[i + 1][0] - 0.4, 0.8), facecolors='tab:orange', alpha=0.5)
+
+        #     # Add half CS to the end of the last process
+        #     if cs > 0:
+        #         last_process_end = timeline[-1][2]
+        #         ax.broken_barh([(last_process_end, half_cs)], (len(timeline) - 0.4, 0.8), facecolors='tab:green', alpha=0.5)
+
+        #     ax.set_ylim(0, len(timeline) + 1)
+        #     ax.set_xlim(0, max(t[2] for t in timeline) + cs)
+        #     ax.set_xlabel("Time")
+        #     ax.set_ylabel("Processes")
+        #     ax.set_yticks([t[0] for t in timeline])
+        #     ax.set_yticklabels([f"P{t[0]}" for t in timeline])
+        #     ax.grid(True)
+        #     ax.set_title("FCFS Gantt Chart")
+
+        #     return fig
+
+
+        # p = 5
+        # at = [0, 2, 3, 4, 5]
+        # cbt = [10, 8, 3, 7, 12]
+        # cs = 1  
+        # FCFS Calculation
+
+
+            
+    
+        
+        
+    
+    # ## if click button on entry frame (when you want to draw plot)
+    # def draw_plot(self):
+        
+    #     # Clear existing widgets in the plot frame
+        # for widget in self.plotframe1.winfo_children():
+        #   widget.destroy()
+
+    #     # Example data
+    #     x = [1, 2, 3, 4, 5]
+    #     y = [10, 20, 15, 25, 30]
+
+    #     # Create a matplotlib figure
+    #     fig = Figure(figsize=(6, 4), dpi=100)
+    #     ax = fig.add_subplot(111)
+    #     ax.plot(x, y, label="Sample Data", color="blue", marker="o")
+    #     ax.set_title("Sample Plot")
+    #     ax.set_xlabel("X-axis")
+    #     ax.set_ylabel("Y-axis")
+    #     ax.legend()
+
+    #     # Embed the matplotlib figure into the Tkinter frame
+        # canvas = FigureCanvasTkAgg(fig, self.plotframe1)
+        # canvas.get_tk_widget().pack(fill="both", expand=True)
+        # canvas.draw()
+        
+        
+
+app = App()
+app.mainloop()
+

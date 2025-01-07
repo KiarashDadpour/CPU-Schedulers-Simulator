@@ -8,7 +8,7 @@ def average(lst, p: int):
     return time / p
 
 
-def fcfs_with_chart(p, at: list, cbt: list, cs=1):
+def fcfs(p, at: list, cbt: list, cs=1):
     current_time = 0
     WT = []
     TT = []
@@ -66,16 +66,13 @@ def plot_gantt(timeline, cs):
     plt.show()
 
 
-# داده‌های ورودی
 p = 5
 at = [0, 2, 3, 4, 5]
 cbt = [10, 8, 3, 7, 12]
-cs = 1  # زمان کانتکست سوییچ
+cs = 1  
 
-# اجرای الگوریتم
-WT, TT, timeline = fcfs_with_chart(p, at, cbt, cs)
+WT, TT, timeline = fcfs(p, at, cbt, cs)
 
-# نمایش نتایج
 print("Waiting Times:", WT)
 print("Turnaround Times:", TT)
 wtbar = average(WT, p)
@@ -83,5 +80,4 @@ ttbar = average(TT, p)
 print("Average of WT:", wtbar)
 print("Average of TT:", ttbar)
 
-# رسم نمودار
 plot_gantt(timeline, cs)

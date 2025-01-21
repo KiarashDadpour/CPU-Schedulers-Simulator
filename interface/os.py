@@ -19,47 +19,36 @@ class ContactPage(customtkinter.CTkToplevel):
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()       
         self.geometry(f"{screen_width}x{screen_height}")  
-
         self.rowconfigure(0, weight=0 )
         self.rowconfigure(1, weight=0)
         self.rowconfigure(2, weight=1)
         self.columnconfigure(0, weight=0)
         self.columnconfigure(1, weight=0)
         self.columnconfigure(2, weight=0)
-        
         image_kia = Image.open("./kiarash.jpeg")  
         image_kia = image_kia.resize((200, 200))  
         photo = ImageTk.PhotoImage(image_kia)
-        
         image_label_kia = customtkinter.CTkLabel(self, image=photo, text="")
         image_label_kia.image = photo  
         image_label_kia.grid(row=0, column=0, padx=(250,100), pady=50, sticky="nsew")
-        
         image_asal = Image.open("./kiarash.jpeg")  
         image_asal = image_asal.resize((200, 200))  
         photo = ImageTk.PhotoImage(image_asal)
-        
         image_label_asal = customtkinter.CTkLabel(self, image=photo, text="")
         image_label_asal.image = photo  
         image_label_asal.grid(row=0, column=1, padx=100, pady=50, sticky="nsew")
-        
         image_pari = Image.open("./kiarash.jpeg")  
         image_pari = image_pari.resize((200, 200)) 
         photo = ImageTk.PhotoImage(image_pari)
-        
         image_label_pari = customtkinter.CTkLabel(self, image=photo, text="")
         image_label_pari.image = photo  
         image_label_pari.grid(row=0, column=2, padx=(100,250), pady=50, sticky="nsew")
-            
         label_kia = customtkinter.CTkLabel(self, text="email kia", font=("Arial", 16))
         label_kia.grid(row=1, column=0, padx=(250,100), pady=50, sticky="nsew")
-        
         image_label_asal = customtkinter.CTkLabel(self, text="email asal", font=("Arial", 16))
         image_label_asal.grid(row=1, column=1, padx=(100,100), pady=50, sticky="nsew")
-        
         image_label_pari = customtkinter.CTkLabel(self, text="email pari", font=("Arial", 16))
         image_label_pari.grid(row=1, column=2, padx=(100,250), pady=50, sticky="nsew")
-        
         close_button = customtkinter.CTkButton(self, text="Close", command=self.destroy)
         close_button.grid(row=2, column=1, pady=30, sticky="s")
 
@@ -68,7 +57,6 @@ def fcfs(p, at: list, cbt: list, cs=1):
     WT = []
     TT = []
     timeline = []  # For Gantt chart
-
     for process in range(p):
         start_time = max(current_time, at[process])
         end_time = start_time + cbt[process]
@@ -78,7 +66,6 @@ def fcfs(p, at: list, cbt: list, cs=1):
         TT.append(tt)
         timeline.append((process + 1, start_time, end_time))  # (PID, Start Time, End Time)
         current_time = end_time + cs  # Add context switch time
-
     return WT, TT, timeline
 
 def round_robin(p, at: list, cbt: list, cs: int, quantum: int):
@@ -89,22 +76,18 @@ def round_robin(p, at: list, cbt: list, cs: int, quantum: int):
     completed = [False] * p  # وضعیت تکمیل فرآیندها
     timeline = []  # تایم‌لاین اجرا
     queue = []  # صف فرآیندهای آماده
-
     while not all(completed):
         # اضافه کردن فرآیندهای رسیده به صف
         for process in range(p):
             if at[process] <= current_time and not completed[process] and process not in queue:
                 queue.append(process)
-
         if not queue:
             # اگر صف خالی است، زمان را به جلو ببرید
             current_time += 1
             continue
-
         # اجرای فرآیند از صف
         process = queue.pop(0)
         start_time = current_time
-
         if cbt[process] > quantum:
             current_time += quantum
             cbt[process] -= quantum
@@ -114,18 +97,14 @@ def round_robin(p, at: list, cbt: list, cs: int, quantum: int):
             completed[process] = True
             TT[process] = current_time - at[process]  # زمان کل
             WT[process] = TT[process] - cbt1[process]  # زمان انتظار
-
         # ثبت در تایم‌لاین
         timeline.append((process + 1, start_time, current_time))
-
         # اضافه کردن زمان Context Switching
         current_time += cs
-
         # اضافه کردن فرآیندهای جدید به صف
         for process in range(p):
             if at[process] <= current_time and not completed[process] and process not in queue:
                 queue.append(process)
-
     return WT, TT, timeline
 
 def find_min(Q: list, cbt: list):
@@ -147,7 +126,6 @@ def spn(p, at: list, cbt: list, cs: int):
     completed_count = 0
     completed = [False] * p
     timeline = []
-
     while completed_count < p:
         Q = []
         for process in range(p):
@@ -163,43 +141,32 @@ def spn(p, at: list, cbt: list, cs: int):
         WT[shortest_process] = TT[shortest_process] - cbt[shortest_process]
         completed[shortest_process] = True
         completed_count += 1
-
         timeline.append((shortest_process + 1, start_time, current_time))  
-
         current_time += cs  
-
     return WT, TT, timeline
 
 def create_gantt_figure(timeline, cs=None):
-
     if cs is None:
         cs=0
-
     fig = Figure(figsize=(10, 4), dpi=100)
     ax = fig.add_subplot(111)
     half_cs = cs / 2
-
     for i, process in enumerate(timeline):
-        index, start, end = process
-            
+        index, start, end = process 
         # Draw the process bar
         ax.broken_barh([(start, end - start)], (index - 0.4, 0.8), facecolors='tab:blue')
-
         # Draw half CS at the end of the current process
         if cs > 0 and i < len(timeline) - 1:
             cs_start = end
             ax.broken_barh([(cs_start, half_cs)], (index - 0.4, 0.8), facecolors='tab:red', alpha=0.5)
-
         # Draw half CS at the start of the next process
         if cs > 0 and i < len(timeline) - 1:
             next_start = timeline[i + 1][1]
             cs_start_next = next_start - half_cs
             ax.broken_barh([(cs_start_next, half_cs)], (timeline[i + 1][0] - 0.4, 0.8), facecolors='tab:orange', alpha=0.5)
-            
         if cs > 0:
             last_process_end = timeline[-1][2]
             ax.broken_barh([(last_process_end, half_cs)], (len(timeline) - 0.4, 0.8), facecolors='tab:green', alpha=0.5)
-
     ax.set_ylim(0, len(timeline) + 1)
     ax.set_xlim(0, max(t[2] for t in timeline) + cs)
     ax.set_xlabel("Time")
@@ -210,7 +177,6 @@ def create_gantt_figure(timeline, cs=None):
     max_time = max(t[2] for t in timeline) + cs
     ax.set_xticks(range(0, max_time + 1, 2))
     ax.set_title("FCFS Gantt Chart")
-
     return fig
 
 def plot_gantt_rr(timeline, cs):
@@ -218,30 +184,24 @@ def plot_gantt_rr(timeline, cs):
     ax = fig.add_subplot(111)
     half_cs = cs / 2
  # Compute half of CS time
-
     for i, process in enumerate(timeline):
         index, start, end = process
         y_pos = index * 1.5  # Increase vertical spacing between processes
-
         # Draw the process bar in blue
         ax.broken_barh([(start, end - start)], (y_pos - 0.4, 0.8), facecolors='tab:blue')
-
         # Draw the second half of CS at the end of the current process
         if cs > 0 and i < len(timeline) - 1:
             cs_start = end
             ax.broken_barh([(cs_start, half_cs)], (y_pos - 0.4, 0.8), facecolors='tab:red', alpha=0.5)
-
         # Draw the first half of CS at the start of the next process
         if cs > 0 and i < len(timeline) - 1:
             next_start = timeline[i + 1][1]
             cs_start_next = next_start - half_cs
             ax.broken_barh([(cs_start_next, half_cs)], ((timeline[i + 1][0] * 1.5) - 0.4, 0.8), facecolors='tab:orange', alpha=0.5)
-
     # Add CS time at the end of the last process
     if cs > 0:
         last_process_end = timeline[-1][2]
         ax.broken_barh([(last_process_end, half_cs)], (y_pos - 0.4, 0.8), facecolors='tab:green', alpha=0.5)
-
     ax.set_ylim(0, len(timeline))
     ax.set_xlim(0, max(t[2] for t in timeline) + cs)
     ax.set_xlabel("Time")
@@ -252,37 +212,30 @@ def plot_gantt_rr(timeline, cs):
     max_time = max(t[2] for t in timeline) + cs
     ax.set_xticks(range(0, max_time + 1, 2))
     ax.set_title("RR Gantt Chart")
-    
     return fig
 
 def plot_gantt_spn(timeline, cs):
     fig = Figure(figsize=(10, 6), dpi=100)
     ax = fig.add_subplot(111)
     half_cs = cs / 2 # Compute half of CS time
-
     for i, process in enumerate(timeline):
         index, start, end = process
         y_pos = index * 1.5  # Increase vertical spacing between processes
-
         # Draw the process bar in blue
         ax.broken_barh([(start, end - start)], (y_pos - 0.4, 0.8), facecolors='tab:blue')
-
         # Draw the second half of CS at the end of the current process
         if cs > 0 and i < len(timeline) - 1:
             cs_start = end
             ax.broken_barh([(cs_start, half_cs)], (y_pos - 0.4, 0.8), facecolors='tab:red', alpha=0.5)
-
         # Draw the first half of CS at the start of the next process
         if cs > 0 and i < len(timeline) - 1:
             next_start = timeline[i + 1][1]
             cs_start_next = next_start - half_cs
             ax.broken_barh([(cs_start_next, half_cs)], ((timeline[i + 1][0] * 1.5) - 0.4, 0.8), facecolors='tab:orange', alpha=0.5)
-
     # Add CS time at the end of the last process
     if cs > 0:
         last_process_end = timeline[-1][2]
         ax.broken_barh([(last_process_end, half_cs)], (y_pos - 0.4, 0.8), facecolors='tab:green', alpha=0.5)
-
     ax.set_ylim(0, (len(timeline) + 1) * 1.5)
     ax.set_xlim(0, max(t[2] for t in timeline) + cs)
     ax.set_xlabel("Time")
@@ -313,7 +266,7 @@ class App(customtkinter.CTk):
         self.sidebar_frame.grid(row=0, column=0, sticky="nsew")   
         self.sidebar_frame.rowconfigure(0, weight=0, minsize=350)
         self.sidebar_frame.rowconfigure(1, weight=1)
-        self.sidebar_frame.columnconfigure(0, weight=1)   
+        self.sidebar_frame.columnconfigure(0, weight=1, minsize=320)   
         ## Tabview in slide bar (selecting algorithms)
         self.tabview = customtkinter.CTkTabview(self.sidebar_frame)
         self.tabview.grid(row=0, column=0, padx=10, pady=(5, 10), sticky="nsew")
@@ -462,10 +415,8 @@ class App(customtkinter.CTk):
         # Clear previous chart and error messages
         for widget in self.plotframe1.winfo_children():
             widget.destroy()
-
         try:
             p, at, cbt, cs, q = self.get_inputs()
-        
             selected_algorithm = None
             fig = None
             # Check which tab is currently selected
@@ -473,26 +424,24 @@ class App(customtkinter.CTk):
                 selected_algorithm = self.radio_var_non_preemptive.get()
             elif self.tabview.get() == "Pre-emptive":
                 selected_algorithm = self.radio_var_preemptive.get()
-
             # Handle the selected algorithm accordingly
             if selected_algorithm == "FCFS":
-                _, _, timeline = fcfs(p, at, cbt, cs)
+                WT, TT, timeline = fcfs(p, at, cbt, cs)
                 fig = create_gantt_figure(timeline, cs)
             elif selected_algorithm == "SPN":
-                _, _, timeline = spn(p, at, cbt, cs)
+                WT, TT, timeline = spn(p, at, cbt, cs)
                 fig = plot_gantt_spn(timeline, cs)
             elif selected_algorithm == "RR":
                 if q is None:
                     label = customtkinter.CTkLabel(self.plotframe1, text="Quantum time is required for Round Robin!", text_color="red", font=customtkinter.CTkFont(size=14, weight="bold"))
                     label.pack(pady=20)
                     return
-                _, _, timeline = round_robin(p, at, cbt, cs, q)
+                WT, TT, timeline = round_robin(p, at, cbt, cs, q)
                 fig = plot_gantt_rr(timeline, cs)
             else:
                 label = customtkinter.CTkLabel(self.plotframe1, text="Please select an algorithm!", text_color="red", font=customtkinter.CTkFont(size=14, weight="bold"))
                 label.pack(pady=20)
                 return
-
             # Embed the new Gantt chart figure in the canvas
             if fig:
                 canvas = FigureCanvasTkAgg(fig, self.plotframe1)

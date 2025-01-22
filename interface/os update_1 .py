@@ -2,6 +2,7 @@ import customtkinter
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from PIL import Image, ImageTk
+import threading
 # from tkinter import Canvas, Frame, Scrollbar
 class InfoPage(customtkinter.CTkToplevel):
     def __init__(self, parent):
@@ -12,6 +13,7 @@ class InfoPage(customtkinter.CTkToplevel):
         self.geometry(f"{screen_width}x{screen_height}") # اندازه دلخواه
         scrollable_frame = customtkinter.CTkScrollableFrame(self, width=580, text=" ", height=380)
         scrollable_frame.pack(padx=10, pady=10, fill="both", expand=True)
+        
 class ContactPage(customtkinter.CTkToplevel):
     def __init__(self, parent):
         super().__init__(parent)
@@ -266,7 +268,7 @@ class App(customtkinter.CTk):
         self.sidebar_frame.grid(row=0, column=0, sticky="nsew")   
         self.sidebar_frame.rowconfigure(0, weight=0, minsize=350)
         self.sidebar_frame.rowconfigure(1, weight=1)
-        self.sidebar_frame.columnconfigure(0, weight=1, minsize=320)   
+        self.sidebar_frame.columnconfigure(0, weight=0, minsize=320)  
         ## Tabview in slide bar (selecting algorithms)
         self.tabview = customtkinter.CTkTabview(self.sidebar_frame)
         self.tabview.grid(row=0, column=0, padx=10, pady=(5, 10), sticky="nsew")
@@ -311,7 +313,7 @@ class App(customtkinter.CTk):
         self.label_frame0 = customtkinter.CTkLabel(self.frame0,text="Entry place:",text_color=("#495155", "#D3D8DB"),font=customtkinter.CTkFont(size=20, weight="bold"),corner_radius=5,fg_color="transparent")
         self.label_frame0.grid(row=0, column=0, pady=10, padx=10, sticky="nw")  
             ## button in frame0
-        self.button_frame0 = customtkinter.CTkButton(self.frame0, text="draw plot", command=self.draw_plot)
+        self.button_frame0 = customtkinter.CTkButton(self.frame0, text="draw plot", command=lambda: threading.Thread(target=self.draw_plot).start())
         self.button_frame0.grid(row=3, column=0, sticky="s", padx=10, pady=(5,15))
         ## frame0_1 in frame0 (Inputs)
         self.frame0_1 = customtkinter.CTkFrame(self.frame0)
@@ -328,23 +330,24 @@ class App(customtkinter.CTk):
         ## informationFrame
         self.infFrame = customtkinter.CTkFrame(self)
         self.infFrame.grid(row=0, column=2, padx=(5,10), sticky="nsew")
-        self.infFrame.columnconfigure(0, weight=1)
+        self.infFrame.columnconfigure(0, weight=0, minsize=300)
         self.infFrame.rowconfigure(0, weight=0, minsize=450)
         self.infFrame.rowconfigure(1,weight=0, minsize=300)
-        self.infFrame.rowconfigure(2, weight=1, minsize=50)
+        self.infFrame.rowconfigure(2, weight=0)
+        self.infFrame.rowconfigure(3, weight=0)
         results = customtkinter.CTkFrame(self.infFrame)
-        results.grid(row=0, column=0, pady=(10,5), padx=10, sticky="nsew")
+        results.grid(row=0, column=0, pady=(10,5), padx=10, sticky="nsew")   
         recommend = customtkinter.CTkFrame(self.infFrame)
         recommend.grid(row=1, column=0, pady=5, padx=10, sticky="nsew")
-        info_contact = customtkinter.CTkFrame(self.infFrame)
-        info_contact.grid(row=2, column=0, pady=(5,10), padx=10, sticky="nsew")
-        button_info = customtkinter.CTkButton(info_contact, text="info", command=self.infopage)
-        button_contact = customtkinter.CTkButton(info_contact, text="contact", command=self.contactpage)
-        info_contact.columnconfigure(0, weight=1)
-        info_contact.rowconfigure(0, weight=0)
-        info_contact.rowconfigure(1, weight=1)
-        button_info.grid(row=0, column=0, pady=(15,5), sticky="s")
-        button_contact.grid(row=1, column=0, pady=(5,15), sticky="s")
+        # info_contact = customtkinter.CTkFrame(self.infFrame)
+        # info_contact.grid(row=2, column=0, pady=(5,10), padx=10, sticky="nsew")
+        button_info = customtkinter.CTkButton(self.infFrame, text="info", command=self.infopage)
+        button_contact = customtkinter.CTkButton(self.infFrame, text="contact", command=self.contactpage)
+        # info_contact.columnconfigure(0, weight=1)
+        # info_contact.rowconfigure(0, weight=0)
+        # info_contact.rowconfigure(1, weight=1)
+        button_info.grid(row=2, column=0, pady=(15,5), sticky="s")
+        button_contact.grid(row=3, column=0, pady=(5,15), sticky="s")
     def infopage(self):
         InfoPage(self)
     def contactpage(self):
@@ -355,17 +358,18 @@ class App(customtkinter.CTk):
         self.tabview.grid_forget()
         # Create a new frame in the same location as the tabview
         self.mlfq_frame = customtkinter.CTkFrame(self.sidebar_frame)
-        self.mlfq_frame.grid(row=0, column=0, padx=10, pady=(15, 10), sticky="nsew")
+        self.mlfq_frame.grid(row=0, column=0, padx=10, pady=(20, 10), sticky="nsew")
         # Add a label to the frame
         label = customtkinter.CTkLabel(self.mlfq_frame, text="Enter MLFQ details here:", font=("Arial", 16))
         label.pack(pady=20)
         # Add a confirm button to remove the frame and restore the tabview
-        confirm_button = customtkinter.CTkButton(self.mlfq_frame, text="Confirm", command=self.remove_mlfq_frame)
+        confirm_button = customtkinter.CTkButton(self.mlfq_frame, text="Confirm", command=lambda: self.after(50, self.remove_mlfq_frame))
         confirm_button.pack(pady=(200,10))
     def remove_mlfq_frame(self):
         """Remove the temporary MLFQ frame and restore the original tabview."""
-        self.mlfq_frame.destroy()  # Remove the frame
+        self.mlfq_frame.grid_forget()  # Remove the frame
         self.tabview.grid(row=0, column=0, padx=10, pady=(5, 10), sticky="nsew")  # Restore tabview
+        self.update_idletasks()
     ## if any pre_emptive algorithm choose
     def frame0_2(self):
         for widget in self.frame0_1.winfo_children():
@@ -415,16 +419,25 @@ class App(customtkinter.CTk):
         # Clear previous chart and error messages
         for widget in self.plotframe1.winfo_children():
             widget.destroy()
+        for widget in self.infFrame.winfo_children():
+            if isinstance(widget, customtkinter.CTkFrame):  # Keep other sections intact
+                for sub_widget in widget.winfo_children():
+                    sub_widget.destroy()
+
         try:
             p, at, cbt, cs, q = self.get_inputs()
+            
             selected_algorithm = None
             fig = None
+            WT, TT, timeline = [], [], []
+
             # Check which tab is currently selected
             if self.tabview.get() == "Non pre-emptive":
                 selected_algorithm = self.radio_var_non_preemptive.get()
             elif self.tabview.get() == "Pre-emptive":
                 selected_algorithm = self.radio_var_preemptive.get()
-            # Handle the selected algorithm accordingly
+
+            # Handle algorithm selection
             if selected_algorithm == "FCFS":
                 WT, TT, timeline = fcfs(p, at, cbt, cs)
                 fig = create_gantt_figure(timeline, cs)
@@ -442,15 +455,67 @@ class App(customtkinter.CTk):
                 label = customtkinter.CTkLabel(self.plotframe1, text="Please select an algorithm!", text_color="red", font=customtkinter.CTkFont(size=14, weight="bold"))
                 label.pack(pady=20)
                 return
+
             # Embed the new Gantt chart figure in the canvas
             if fig:
                 canvas = FigureCanvasTkAgg(fig, self.plotframe1)
                 canvas_widget = canvas.get_tk_widget()
                 canvas_widget.pack(fill="both", expand=True)
                 canvas.draw()
+
+            # Display WT and TT results in the results frame
+            self.display_results(WT, TT)
+
         except ValueError:
             label = customtkinter.CTkLabel(self.plotframe1, text="Input error! Please enter valid numbers.", text_color="red", font=customtkinter.CTkFont(size=14, weight="bold"))
             label.pack(pady=20)
+            
+    def display_results(self, WT, TT):
+        """Displays formatted WT and TT lists in a fixed-size results frame."""
+        results_frame = self.infFrame.winfo_children()[0]  # Assuming results frame is the first child
+        
+        # Clear previous results
+        for widget in results_frame.winfo_children():
+            widget.destroy()
+
+        # Set a fixed size for the results frame to prevent expansion
+        results_frame.configure(width=300, height=200)  # Adjust as needed
+        results_frame.pack_propagate(False)  # Prevent frame from resizing
+
+        # Create a scrollable frame inside results frame to show content within fixed size
+        scrollable_results = customtkinter.CTkScrollableFrame(results_frame, width=280, height=380)
+        scrollable_results.pack(fill="both", expand=True, padx=10, pady=10)
+
+        # Add a title for results
+        title_label = customtkinter.CTkLabel(scrollable_results, text="Scheduling Results", font=("Arial", 18, "bold"))
+        title_label.pack(pady=(10, 5))
+
+        # Display Waiting Time (WT) results
+        wt_label_title = customtkinter.CTkLabel(scrollable_results, text="Waiting Times (WT):", font=("Arial", 16, "bold"))
+        wt_label_title.pack(pady=(10, 5))
+
+        for i, wt in enumerate(WT, start=1):
+            wt_label = customtkinter.CTkLabel(scrollable_results, text=f"WT{i} = {wt}", font=("Arial", 14))
+            wt_label.pack(pady=2, padx=5, anchor="w")
+
+        # Display Turnaround Time (TT) results
+        tt_label_title = customtkinter.CTkLabel(scrollable_results, text="Turnaround Times (TT):", font=("Arial", 16, "bold"))
+        tt_label_title.pack(pady=(10, 5))
+
+        for i, tt in enumerate(TT, start=1):
+            tt_label = customtkinter.CTkLabel(scrollable_results, text=f"TT{i} = {tt}", font=("Arial", 14))
+            tt_label.pack(pady=2, padx=5, anchor="w")
+
+        # Display Averages
+        avg_wt = sum(WT) / len(WT) if WT else 0
+        avg_tt = sum(TT) / len(TT) if TT else 0
+
+        avg_wt_label = customtkinter.CTkLabel(scrollable_results, text=f"Average WT = {avg_wt:.2f}", font=("Arial", 16, "bold"))
+        avg_wt_label.pack(pady=(10, 2), padx=5, anchor="w")
+
+        avg_tt_label = customtkinter.CTkLabel(scrollable_results, text=f"Average TT = {avg_tt:.2f}", font=("Arial", 16, "bold"))
+        avg_tt_label.pack(pady=(2, 10), padx=5, anchor="w")
+
 
 app = App()
 app.mainloop()

@@ -11,7 +11,7 @@ def find_min(Q: deque, cbt: list):
             index_value = index
     return index_value
 
-
+ 
 def average(lst):
     return sum(lst) / len(lst)
 

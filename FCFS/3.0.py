@@ -15,7 +15,7 @@ def fcfs(p, at: list, cbt: list, cs=1):
     while ready_queue:
         process = ready_queue.popleft()
 
-        if current_time < at[process]:
+        if current_time < at[process]: 
             current_time = at[process]
         start_time = current_time
         end_time = start_time + cbt[process]

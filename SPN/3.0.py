@@ -18,9 +18,8 @@ def average(lst):
 
 def spn(p, at: list, cbt: list, cs: int):
     current_time = 0
-    WT = deque([0] * p)  
-    TT = deque([0] * p)  
-    RT = deque([0] * p)  
+    WT = deque([0] * p)
+    TT = deque([0] * p)
 
     completed_count = 0
     completed = deque([False] * p)
@@ -37,20 +36,18 @@ def spn(p, at: list, cbt: list, cs: int):
             continue
 
         shortest_process = find_min(Q, cbt)
-        first_run_time = current_time
 
         start_time = current_time
         current_time += cbt[shortest_process]
         TT[shortest_process] = current_time - at[shortest_process]
         WT[shortest_process] = TT[shortest_process] - cbt[shortest_process]
-        RT[shortest_process] = first_run_time - at[shortest_process]
 
         completed[shortest_process] = True
         completed_count += 1
         timeline.append((shortest_process + 1, start_time, current_time))
 
         current_time += cs
-
+    RT = WT
     return WT, TT, RT, timeline
 
 def plot_gantt_spn(timeline, cs):
@@ -59,7 +56,7 @@ def plot_gantt_spn(timeline, cs):
 
     for i, process in enumerate(timeline):
         index, start, end = process
-        y_pos = index * 1.5 
+        y_pos = index * 1.5
 
         # Draw the process bar in blue
         ax.broken_barh([(start, end - start)], (y_pos - 0.4, 0.8), facecolors='tab:blue')

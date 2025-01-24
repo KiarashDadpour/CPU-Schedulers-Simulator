@@ -61,7 +61,7 @@ def non_preemptive(p, at: list, cbt: list, priorities, cs=1):
     return WT, TT, RT, timeline
 
 
-def plot_gantt_rr(timeline, cs):
+def plot_gantt_non_preemptive(timeline, cs):
     fig, ax = plt.subplots(figsize=(10, 6))
     half_cs = cs / 2  # Compute half of CS time
 
@@ -109,4 +109,4 @@ print("Average of WT: ", wtbar)
 print("Average of TT: ", ttbar)
 print("Average of RT: ", rtbar)
 
-plot_gantt_rr(timeline, cs)
+plot_gantt_non_preemptive(timeline, cs)

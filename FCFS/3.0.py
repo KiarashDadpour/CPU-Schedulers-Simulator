@@ -15,7 +15,7 @@ def fcfs(p, at: list, cbt: list, cs=1):
     while ready_queue:
         process = ready_queue.popleft()
 
-        if current_time < at[process]: 
+        if current_time < at[process]:
             current_time = at[process]
         start_time = current_time
         end_time = start_time + cbt[process]
@@ -31,9 +31,9 @@ def fcfs(p, at: list, cbt: list, cs=1):
     RT = TT
     return WT, TT, RT,  timeline
 
-def plot_gantt_rr(timeline, cs):
+def plot_gantt_fcfs(timeline, cs):
     fig, ax = plt.subplots(figsize=(10, 6))
-    half_cs = cs / 2  
+    half_cs = cs / 2
 
     for i, process in enumerate(timeline):
         index, start, end = process
@@ -79,4 +79,4 @@ print("Average of WT: ", wtbar)
 print("Average of TT: ", ttbar)
 print("Average of RT: ", rtbar)
 
-plot_gantt_rr(timeline, cs)
+plot_gantt_fcfs(timeline, cs)

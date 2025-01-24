@@ -10,7 +10,7 @@ def get_highest_priority_process(ready_queue, priorities1):
     selected_process = None
 
     for process in ready_queue:
-        if priorities1[process] < highest_priority:
+        if priorities1[process] < highest_priority: 
             highest_priority = priorities1[process]
             selected_process = process
 

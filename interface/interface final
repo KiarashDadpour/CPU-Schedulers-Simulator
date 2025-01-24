@@ -4,6 +4,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from PIL import Image, ImageTk
 import threading
 from collections import deque
+import tkinter as tk
 
 # from tkinter import Canvas, Frame, Scrollbar
 class InfoPage(customtkinter.CTkToplevel):
@@ -11,10 +12,109 @@ class InfoPage(customtkinter.CTkToplevel):
         super().__init__(parent)
         self.title("Info Page")
         screen_width = self.winfo_screenwidth()
-        screen_height = self.winfo_screenheight()       
-        self.geometry(f"{screen_width}x{screen_height}") # اندازه دلخواه
-        scrollable_frame = customtkinter.CTkScrollableFrame(self, width=580, text=" ", height=380)
-        scrollable_frame.pack(padx=10, pady=10, fill="both", expand=True)
+        screen_height = self.winfo_screenheight()
+        self.geometry(f"{screen_width}x{screen_height}") 
+
+        # Create a Text Widget directly
+        self.text_widget = tk.Text(self, wrap="word", font=("Arial", 16), padx=10, pady=10)
+        self.text_widget.pack(fill="both", expand=True, padx=10, pady=10)
+
+        # HTML-like content
+        self.html_content = """
+<p>
+   <strong>FCFS</strong> 
+</p>
+<p>
+  First-Come, First-Served (FCFS) is one of the simplest CPU scheduling algorithms, where processes are executed in the exact order of their arrival. It operates on a <em>non-preemptive</em> basis, meaning once a process starts execution, it runs to completion before the next process begins. FCFS is easy to implement using a simple FIFO (First-In, First-Out) queue, ensuring fairness by servicing requests in the order they arrive. However, it can lead to significant performance issues, particularly the <strong>convoy effect</strong>, where shorter processes get stuck waiting behind longer ones, leading to high average waiting and turnaround times. This algorithm does not prioritize processes based on their importance or execution time, making it unsuitable for time-sensitive applications. FCFS is best suited for batch processing systems with predictable workloads, where response time is not a critical concern. Despite its limitations, FCFS is still widely used in disk scheduling and situations where tasks must be executed sequentially.
+</p>
+
+<p>
+   <strong>SPN</strong> 
+</p>
+<p>
+  Shortest Process Next (SPN), also known as Shortest Job Next (SJN), is a CPU scheduling algorithm that selects the process with the shortest expected execution time. It operates on a <em>non-preemptive</em> basis, meaning once a process starts execution, it runs to completion without interruption. SPN minimizes average waiting and turnaround times by prioritizing shorter jobs, making it optimal in scenarios where process execution times are known in advance. However, it suffers from <strong>starvation</strong>, where longer processes may be delayed indefinitely if shorter ones keep arriving. Additionally, predicting process execution times accurately can be challenging, which may lead to inefficiencies. This algorithm is best suited for batch processing environments with predictable workloads and limited process variations.
+</p>
+
+<p>
+   <strong>HRRN</strong> 
+</p>
+<p>
+  Highest Response Ratio Next (HRRN) is a CPU scheduling algorithm that aims to improve process scheduling fairness by selecting the process with the highest response ratio, calculated as <em>(waiting time + service time) / service time</em>. It operates on a <em>non-preemptive</em> basis, ensuring that once a process starts execution, it runs until completion. HRRN effectively addresses the issue of starvation seen in shortest job first algorithms by gradually increasing the priority of longer waiting processes. It provides a good balance between short and long processes, leading to improved turnaround times. However, since it requires frequent calculation of response ratios for all processes, it may introduce some computational overhead. This algorithm is particularly effective in environments with varying job sizes and where both short and long tasks must be handled efficiently.
+</p>
+
+<p>
+   <strong>RR</strong> 
+</p>
+<p>
+  Round Robin (RR) is a widely used CPU scheduling algorithm that assigns a fixed time quantum to each process in a cyclic order. It operates on a <em>preemptive</em> basis, meaning a running process is interrupted if it exceeds its allocated time slice and placed back in the ready queue. RR ensures fairness by giving equal opportunity to all processes, making it particularly well-suited for time-sharing and multitasking systems. However, its performance heavily depends on the choice of time quantum; a very small quantum results in excessive context switching overhead, while a large quantum may lead to poor response times. RR generally provides better response times for interactive users but may result in higher average waiting times compared to other scheduling algorithms. It is commonly used in operating systems designed for interactive environments such as operating system kernels and real-time systems.
+</p>
+
+<p>
+   <strong>SRTF</strong> 
+</p>
+<p>
+  Shortest Remaining Time First (SRTF), also known as Preemptive Shortest Job Next, is a CPU scheduling algorithm that selects the process with the shortest remaining execution time at any given moment. It operates on a <em>preemptive</em> basis, meaning a newly arriving process with a shorter burst time can preempt the currently running process. SRTF provides optimal average waiting and turnaround times but introduces challenges such as <strong>starvation</strong> of longer processes and the overhead of frequent context switching. Additionally, it requires precise knowledge of remaining execution times, which may not always be feasible. This algorithm is particularly beneficial for environments where short tasks arrive frequently, such as real-time processing and interactive systems that prioritize fast response times.
+</p>
+
+<p>
+   <strong>MLFQ</strong> 
+</p>
+<p>
+  Multi-Level Feedback Queue (MLFQ) is an advanced CPU scheduling algorithm that categorizes processes into multiple priority-based queues, with each queue having its own scheduling policy and time quantum. It operates on a <em>preemptive</em> basis, allowing dynamic adjustments to process priorities based on their behavior and execution history. Processes that frequently utilize CPU time are gradually moved to lower-priority queues, while interactive processes that require quick responses are kept in higher-priority queues. MLFQ effectively balances fairness and system responsiveness, making it suitable for general-purpose operating systems. However, it can be complex to configure and requires careful tuning of parameters such as the number of queues, priority adjustment policies, and demotion/promotion criteria. MLFQ is ideal for systems with diverse workloads, such as modern operating systems, gaming applications, and cloud computing environments.
+</p>
+
+
+"""
+
+        # Display HTML-like content
+        self.display_html_like_content(self.text_widget, self.html_content)
+
+        # Disable editing after inserting content
+        self.text_widget.config(state="disabled")
+
+    def display_html_like_content(self, text_widget, content):
+        # Enable text widget for inserting
+        text_widget.config(state="normal")
+
+        lines = content.strip().split("\n")
+
+        for line in lines:
+            line = line.strip()
+            if not line:
+                text_widget.insert("end", "\n")
+                continue  # Skip empty lines
+
+            # Check for HTML-like tags
+            while "<" in line and ">" in line:
+                start_tag = line.find("<")
+                end_tag = line.find(">")
+                tag = line[start_tag + 1:end_tag]
+                line = line[:start_tag] + line[end_tag + 1:]
+
+                if tag.startswith("/"):
+                    tag = tag[1:]
+                    text_widget.tag_remove(tag, "end-1c linestart", "end-1c lineend")
+                else:
+                    if tag == "strong":
+                        text_widget.tag_configure(tag, font=("Arial", 12, "bold"))
+                    elif tag == "em":
+                        text_widget.tag_configure(tag, font=("Arial", 12, "italic"))
+                    elif tag == "p":
+                        # Add spacing for paragraphs
+                        text_widget.insert("end", "\n")
+                        continue
+
+                    # Insert formatted text with the applied tag
+                    text_widget.insert("end", line[:line.find("<")], tag)
+                    line = line[line.find("<"):]
+
+            # Insert the remaining text without adding unnecessary newlines
+            text_widget.insert("end", line + "\n")
+
+        text_widget.insert("end","\n")  # Ensure a final newline for readability
+        text_widget.config(state="disabled")
+           
+    
         
 class ContactPage(customtkinter.CTkToplevel):
     def __init__(self, parent):

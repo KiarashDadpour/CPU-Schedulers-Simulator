@@ -28,7 +28,7 @@ def fcfs(p, at: list, cbt: list, cs=1):
         timeline.append((process + 1, start_time, end_time))
 
         current_time = end_time + cs
-    RT = TT
+    RT = WT
     return WT, TT, RT,  timeline
 
 def plot_gantt_fcfs(timeline, cs):

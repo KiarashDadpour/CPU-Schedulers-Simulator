@@ -15,10 +15,36 @@
      - ##### Multi-Level Feedback Queue (MLFQ)
      - ##### Preemptive Priority (PP)
 
+- ### Interactive GUI:
+  - #### Easy-to-use input interface
+  - #### Real-time visualization
+  - #### Dynamic Gantt charts
 
+- ### Performance Metrics:
+  - #### Waiting Time (WT)
+  - #### Turnaround Time (TT)
+  - ####  Response Time (RT)
 
+## 💻 Usage
+### 1. Run the application:
+```
+python app.py
+```
+### 2. Select scheduling algorithm type:
 
+- #### Choose between “Pre-emptive” and “Non pre-emptive” tabs
+- #### Select specific algorithm
 
+### 3. Enter process details:
+
+- #### Number of processes
+- #### Arrival times (AT)
+- #### CPU burst times (CBT)
+- #### Context switch time
+- #### Quantum time (for RR, SRTF)
+- #### Priorities (for Priority scheduling)
+
+### 4. Click “Draw Plot” to visualize the scheduling
 
 
 ## 🐳 Docker Support

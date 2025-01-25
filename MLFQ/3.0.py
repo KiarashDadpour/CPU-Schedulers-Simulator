@@ -6,12 +6,12 @@ def average(lst):
     return sum(lst) / len(lst)
 
 
-def get_min(queue, remaining_time):
+def get_min(queue, current_runnig_time):
     min_time = float('inf')
     selected_process = None
     for process in queue:
-        if remaining_time[process] < min_time:
-            min_time = remaining_time[process]
+        if current_runnig_time[process] < min_time:
+            min_time = current_runnig_time[process]
             selected_process = process
     return selected_process
 

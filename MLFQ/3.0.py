@@ -6,7 +6,7 @@ def average(lst):
     return sum(lst) / len(lst)
 
 
-def get_min_remaining_time_process(queue, remaining_time):
+def get_min(queue, remaining_time):
     min_time = float('inf')
     selected_process = None
     for process in queue:
@@ -16,14 +16,14 @@ def get_min_remaining_time_process(queue, remaining_time):
     return selected_process
 
 
-def get_max_response_ratio_process(queue, current_time, at, remaining_time):
-    max_ratio = -1
+def get_max_rpr(queue, current_time, at, current_runnig_time):
+    max_rpr = -1
     selected_process = None
     for process in queue:
         waiting_time = current_time - at[process]
-        response_ratio = (waiting_time + remaining_time[process]) / remaining_time[process]
-        if response_ratio > max_ratio:
-            max_ratio = response_ratio
+        rpr = (waiting_time + current_runnig_time[process]) / current_runnig_time[process]
+        if rpr > max_rpr:
+            max_rpr = rpr
             selected_process = process
     return selected_process
 
@@ -35,7 +35,7 @@ def create_queues(num_queues):
     return queues
 
 
-def mlfq_scheduler(p, at, cbt, quantum, cs, first_queue_algo, second_queue_algo,third_queue_algo, last_queue_algo):
+def mlfq(p, at, cbt, quantum, cs, first_queue_algo, second_queue_algo, third_queue_algo, last_queue_algo):
     current_time = 0
     WT = [0] * p
     TT = [0] * p
@@ -43,7 +43,7 @@ def mlfq_scheduler(p, at, cbt, quantum, cs, first_queue_algo, second_queue_algo,
     timeline = []
 
     queues = create_queues(4)
-    remaining_time = cbt.copy()
+    cbt1 = cbt.copy()
     process_queue_time = [0] * p
     first_response = [False] * p
 
@@ -56,17 +56,17 @@ def mlfq_scheduler(p, at, cbt, quantum, cs, first_queue_algo, second_queue_algo,
 
     quantum_times = [quantum, quantum * 2, quantum * 4]
 
-    unassigned_processes = []
+    process_not_processed = []
     for i in range(p):
-        unassigned_processes.append(i)
+        process_not_processed.append(i)
     i = 0
-    while len(unassigned_processes) > 0 or any(queues):
-        for process in unassigned_processes[:]:
+    while len(process_not_processed) > 0 or any(queues):
+        for process in process_not_processed[:]:
             if at[process] <= current_time:
                 queues[0].append(process)
-                unassigned_processes.remove(process)
+                process_not_processed.remove(process)
 
-        executed = False
+        flag = False
 
         for queue_level in range(len(queues)):
             queue = queues[queue_level]
@@ -75,35 +75,35 @@ def mlfq_scheduler(p, at, cbt, quantum, cs, first_queue_algo, second_queue_algo,
 
             current_algorithm = queue_algorithms[queue_level]
             process = None
-            execute_time = 0
+            exe_time = 0
 
             if current_algorithm == 'RR':
                 if len(queue) > 0:
                     process = queue[0]
-                    if remaining_time[process] < quantum_times[queue_level]:
-                        execute_time = remaining_time[process]
+                    if cbt1[process] < quantum_times[queue_level]:
+                        exe_time = cbt1[process]
                     else:
-                        execute_time = quantum_times[queue_level]
+                        exe_time = quantum_times[queue_level]
 
             elif current_algorithm == 'SRTF':
                 if len(queue) > 0:
-                    process = get_min_remaining_time_process(queue, remaining_time)
-                    execute_time = quantum_times[i]
+                    process = get_min(queue, cbt1)
+                    exe_time = quantum_times[i]
 
             elif current_algorithm == 'FCFS':
                 if len(queue) > 0:
                     process = queue[0]
-                    execute_time = remaining_time[process]
+                    exe_time = cbt1[process]
 
             elif current_algorithm == 'SPN':
                 if len(queue) > 0:
-                    process = get_min_remaining_time_process(queue, remaining_time)
-                    execute_time = remaining_time[process]
+                    process = get_min(queue, cbt1)
+                    exe_time = cbt1[process]
 
             elif current_algorithm == 'HRRN':
                 if len(queue) > 0:
-                    process = get_max_response_ratio_process(queue, current_time, at, remaining_time)
-                    execute_time = remaining_time[process]
+                    process = get_max_rpr(queue, current_time, at, cbt1)
+                    exe_time = cbt1[process]
 
             if process is None:
                 continue
@@ -112,24 +112,24 @@ def mlfq_scheduler(p, at, cbt, quantum, cs, first_queue_algo, second_queue_algo,
                 RT[process] = current_time - at[process]
                 first_response[process] = True
 
-            timeline.append((process + 1, current_time, current_time + execute_time))
-            remaining_time[process] -= execute_time
-            process_queue_time[process] += execute_time
+            timeline.append((process + 1, current_time, current_time + exe_time))
+            cbt1[process] -= exe_time
+            process_queue_time[process] += exe_time
 
-            if remaining_time[process] <= 0:
+            if cbt1[process] <= 0:
                 queue.remove(process)
-                TT[process] = current_time + execute_time - at[process]
+                TT[process] = current_time + exe_time - at[process]
                 WT[process] = TT[process] - cbt[process]
             elif queue_level < 3 and process_queue_time[process] >= quantum_times[queue_level]:
                 queue.remove(process)
                 queues[queue_level + 1].append(process)
                 process_queue_time[process] = 0
 
-            current_time += execute_time + cs
-            executed = True
+            current_time += exe_time + cs
+            flag = True
             break
 
-        if not executed:
+        if not flag:
             current_time += 1
     i += 1
     return WT, TT, RT, timeline
@@ -146,10 +146,8 @@ def plot_gantt_mlfq(timeline, cs):
         end = process[2]
         y_pos = index * 1.47
 
-        # Plot process execution
         ax.broken_barh([(start, end - start)], (y_pos - 0.4, 0.8), facecolors='tab:blue')
 
-        # Plot context switches
         if cs > 0 and i < len(timeline) - 1:
             cs_start = end
             ax.broken_barh([(cs_start, half_cs)], (y_pos - 0.4, 0.8),
@@ -161,13 +159,11 @@ def plot_gantt_mlfq(timeline, cs):
             ax.broken_barh([(cs_start_next, half_cs)], (next_y_pos - 0.4, 0.8),
                            facecolors='tab:orange', alpha=0.5)
 
-    # Plot final context switch
     if cs > 0:
         last_process_end = timeline[-1][2]
         ax.broken_barh([(last_process_end, half_cs)], (y_pos - 0.4, 0.8),
                        facecolors='tab:green', alpha=0.5)
 
-    # Set up the plot
     ax.set_ylim(0, len(timeline))
     max_time = 0
     for t in timeline:
@@ -178,7 +174,6 @@ def plot_gantt_mlfq(timeline, cs):
     ax.set_xlabel("Time")
     ax.set_ylabel("Processes")
 
-    # Set up y-axis ticks
     y_ticks = []
     y_labels = []
     for t in timeline:
@@ -194,11 +189,11 @@ def plot_gantt_mlfq(timeline, cs):
 
 
 p = 5
-at = [0, 1, 2, 3, 4]  
-cbt = [3, 6, 4, 5, 20]  
-cs = 1  
+at = [0, 1, 2, 3, 4]
+cbt = [3, 6, 4, 5, 20]
+cs = 1
 quantum = 3
-a, b, c, timeline = mlfq_scheduler(
+a, b, c, timeline = mlfq(
     p, at, cbt, quantum, cs,
     first_queue_algo='SRTF',
     second_queue_algo='RR',

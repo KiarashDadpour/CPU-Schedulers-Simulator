@@ -38,12 +38,12 @@ def srtf(p, at, cbt, cs, quantum):
                 arrived_processes.append(i)
 
         if len(arrived_processes) == 0:
-            next_arrival = float('inf')
+            next_process_arrive = float('inf')
             for i in range(p):
                 if not completed[i]:
-                    next_arrival = min(next_arrival, at[i])
+                    next_process_arrive = min(next_process_arrive, at[i])
 
-            current_time = next_arrival
+            current_time = next_process_arrive
             continue
 
         current_process = find_shortest_process(arrived_processes, cbt1)
@@ -53,7 +53,6 @@ def srtf(p, at, cbt, cs, quantum):
             first_run[current_process] = True
 
         if current_running_time[current_process] >= quantum:
-            # Perform context switch and find next shortest process
             current_time += cs
             current_running_time[current_process] = 0
 
@@ -67,13 +66,13 @@ def srtf(p, at, cbt, cs, quantum):
 
             current_process = find_shortest_process(arrived_processes, cbt1)
 
-        execution_time = min(quantum - current_running_time[current_process], cbt1[current_process])
+        exe_time = min(quantum - current_running_time[current_process], cbt1[current_process])
 
-        current_time += execution_time
-        cbt1[current_process] -= execution_time
-        current_running_time[current_process] += execution_time
+        current_time += exe_time
+        cbt1[current_process] -= exe_time
+        current_running_time[current_process] += exe_time
 
-        timeline.append((current_process + 1, current_time - execution_time, current_time))
+        timeline.append((current_process + 1, current_time - exe_time, current_time))
 
         if cbt1[current_process] == 0:
             completed[current_process] = True
@@ -92,23 +91,19 @@ def plot_gantt_srtf(timeline, cs):
 
     for i, process in enumerate(timeline):
         index, start, end = process
-        y_pos = index * 1.5  # Increase vertical spacing between processes
+        y_pos = index * 1.5  
 
-        # Draw the process bar in blue
         ax.broken_barh([(start, end - start)], (y_pos - 0.4, 0.8), facecolors='tab:blue')
 
-        # Draw the second half of CS at the end of the current process
         if cs > 0 and i < len(timeline) - 1:
             cs_start = end
             ax.broken_barh([(cs_start, half_cs)], (y_pos - 0.4, 0.8), facecolors='tab:red', alpha=0.5)
 
-        # Draw the first half of CS at the start of the next process
         if cs > 0 and i < len(timeline) - 1:
             next_start = timeline[i + 1][1]
             cs_start_next = next_start - half_cs
             ax.broken_barh([(cs_start_next, half_cs)], ((timeline[i + 1][0] * 1.5) - 0.4, 0.8), facecolors='tab:orange', alpha=0.5)
 
-    # Add CS time at the end of the last process
     if cs > 0:
         last_process_end = timeline[-1][2]
         ax.broken_barh([(last_process_end, half_cs)], (y_pos - 0.4, 0.8), facecolors='tab:green', alpha=0.5)
@@ -125,7 +120,6 @@ def plot_gantt_srtf(timeline, cs):
     plt.title("SRTF")
     plt.show()
 
-# Test the algorithm
 p = 6
 at = [0, 0, 1, 1,2, 2]
 cbt = [4, 2, 1, 3, 2, 1]

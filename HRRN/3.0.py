@@ -52,11 +52,11 @@ def hrrn(p, at, cbt, cs):
         ready_processes = find_ready_processes(p, at, current_time, completed)
 
         if len(ready_processes) == 0:
-            next_arrival = float('inf')
+            next_process_arrive = float('inf')
             for i in range(p):
                 if not completed[i]:
-                    next_arrival = min(next_arrival, at[i])
-            current_time = next_arrival
+                    next_process_arrive = min(next_process_arrive, at[i])
+            current_time = next_process_arrive
             continue
 
         rpr = calculate_rpr(ready_processes, current_time, at, cbt)
@@ -67,8 +67,8 @@ def hrrn(p, at, cbt, cs):
         current_time += cbt[max_index]
         end_time = current_time
 
-        TT[max_index] = end_time - at[max_index]  # Turnaround Time
-        WT[max_index] = TT[max_index] - cbt[max_index]  # Waiting Time
+        TT[max_index] = end_time - at[max_index]
+        WT[max_index] = TT[max_index] - cbt[max_index]
 
         completed[max_index] = True
         completed_count += 1
@@ -87,23 +87,19 @@ def plot_gantt_hrrn(timeline, cs):
 
     for i, process in enumerate(timeline):
         index, start, end = process
-        y_pos = index * 1.5  # Increase vertical spacing between processes
+        y_pos = index * 1.5
 
-        # Draw the process bar in blue
         ax.broken_barh([(start, end - start)], (y_pos - 0.4, 0.8), facecolors='tab:blue')
 
-        # Draw the second half of CS at the end of the current process
         if cs > 0 and i < len(timeline) - 1:
             cs_start = end
             ax.broken_barh([(cs_start, half_cs)], (y_pos - 0.4, 0.8), facecolors='tab:red', alpha=0.5)
 
-        # Draw the first half of CS at the start of the next process
         if cs > 0 and i < len(timeline) - 1:
             next_start = timeline[i + 1][1]
             cs_start_next = next_start - half_cs
             ax.broken_barh([(cs_start_next, half_cs)], ((timeline[i + 1][0] * 1.5) - 0.4, 0.8), facecolors='tab:orange', alpha=0.5)
 
-    # Add CS time at the end of the last process
     if cs > 0:
         last_process_end = timeline[-1][2]
         ax.broken_barh([(last_process_end, half_cs)], (y_pos - 0.4, 0.8), facecolors='tab:green', alpha=0.5)
@@ -120,7 +116,6 @@ def plot_gantt_hrrn(timeline, cs):
     plt.title("HRRN")
     plt.show()
 
-# Test the algorithm
 p = 5
 at = [0, 2, 3, 4, 5]
 cbt = [10, 8, 3, 7, 12]

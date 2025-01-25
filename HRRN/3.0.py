@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 
 def average(lst):
     return sum(lst) / len(lst)
-
+ 
 def find_ready_processes(p, at, current_time, completed):
     ready_processes = []
     for i in range(p):

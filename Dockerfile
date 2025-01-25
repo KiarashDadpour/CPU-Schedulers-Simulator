@@ -10,3 +10,9 @@ COPY --from=builder /usr/local/lib/python3.9/site-packages/ /usr/local/lib/pytho
 COPY app.py .
 
 CMD ["python", "./app.py"] 
+
+LABEL maintainer="Kiarash Dadpour <Kiarash.dadpour@gmail.com>"
+LABEL maintainer="Asal Mahmoudi Nejhad <assalmahmodi82@gmail.com>"
+LABEL maintainer="Parnian Pourjafari <>"
+LABEL version="1.0"
+LABEL description="CPU Schedulers Simulator"

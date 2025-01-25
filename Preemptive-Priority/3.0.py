@@ -10,7 +10,7 @@ def get_highest_priority_process(ready_queue, priorities1):
     selected_process = None
 
     for process in ready_queue:
-        if priorities1[process] < highest_priority: 
+        if priorities1[process] < highest_priority:
             highest_priority = priorities1[process]
             selected_process = process
 
@@ -31,7 +31,6 @@ def preemptive(p, at, cbt, priorities, quantum, cs=1):
     priorities1 = priorities.copy()
 
     while completed_processes < p:
-        # Add new arrived processes to ready queue
         for i in range(p):
             if at[i] <= current_time and i not in ready_queue and cbt1[i] > 0:
                 ready_queue.append(i)
@@ -42,25 +41,24 @@ def preemptive(p, at, cbt, priorities, quantum, cs=1):
 
         selected_process = get_highest_priority_process(ready_queue, priorities1)
 
-        # Record first response time
         if not first_response[selected_process]:
             RT[selected_process] = current_time - at[selected_process]
             first_response[selected_process] = True
 
-        execution_time = min(quantum, cbt1[selected_process])
+        exe_time = min(quantum, cbt1[selected_process])
 
-        next_arrival = float('inf')
+        next_process_arrive = float('inf')
         for i in range(p):
-            if at[i] > current_time and at[i] < current_time + execution_time and cbt1[i] > 0:
+            if at[i] > current_time and at[i] < current_time + exe_time and cbt1[i] > 0: # not in Q and
                 if priorities1[i] < priorities1[selected_process]:
-                    next_arrival = min(next_arrival, at[i])
+                    next_process_arrive = min(next_process_arrive, at[i])
 
-        if next_arrival != float('inf'):
-            execution_time = next_arrival - current_time
+        if next_process_arrive != float('inf'):
+            exe_time = next_process_arrive - current_time
 
-        timeline.append((selected_process + 1, current_time, current_time + execution_time))
-        cbt1[selected_process] -= execution_time
-        current_time += execution_time
+        timeline.append((selected_process + 1, current_time, current_time + exe_time))
+        cbt1[selected_process] -= exe_time
+        current_time += exe_time
 
         ready_queue.remove(selected_process)
 

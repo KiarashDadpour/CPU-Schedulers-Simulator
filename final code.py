@@ -71,11 +71,7 @@ class MLFQPage(customtkinter.CTkToplevel):
         ]
         print(f"MLFQ Algorithms Updated: {self.master.mlfq_algorithms}")
         self.destroy()
-
- 
-
-            
-
+         
 class InfoPage(customtkinter.CTkToplevel):
     def __init__(self, parent):
         super().__init__(parent)
@@ -199,69 +195,85 @@ class InfoPage(customtkinter.CTkToplevel):
         text_widget.insert("end","\n")  # Ensure a final newline for readability
         text_widget.config(state="disabled")
                  
+class ContactCard(customtkinter.CTkFrame):
+    def __init__(self, master, img_path, email, github, **kwargs):
+        super().__init__(master, corner_radius=12, fg_color=("gray95", "#2b2b2b"), **kwargs)
+        self.grid_columnconfigure(0, weight=1)
+
+        # تصویر (CTkImage مقیاس‌پذیر و هماهنگ با تم)
+        img = customtkinter.CTkImage(light_image=Image.open(img_path), size=(200, 200))
+        customtkinter.CTkLabel(self, image=img, text="").grid(row=0, column=0, padx=16, pady=(16, 8))
+
+        # استایل لینک
+        link_font  = customtkinter.CTkFont(size=14, underline=True)
+        link_color = ("#1D4ED8", "#93C5FD")  # آبی خوانا در هر دو تم
+
+        # ایمیل (کلیک = mailto)
+        email_lbl = customtkinter.CTkLabel(self, text=email, font=link_font,
+                                 text_color=link_color, cursor="hand2",
+                                 wraplength=260, anchor="center")
+        email_lbl.grid(row=1, column=0, padx=16, pady=(0, 6), sticky="ew")
+        email_lbl.bind("<Button-1>", lambda e: webbrowser.open_new(f"mailto:{email}"))
+
+        # گیت‌هاب (نمایش کوتاه ولی با لینک کامل)
+        gh_lbl = customtkinter.CTkLabel(self, text="GitHub profile", font=link_font,
+                              text_color=link_color, cursor="hand2", anchor="center")
+        gh_lbl.grid(row=2, column=0, padx=16, pady=(0, 16), sticky="ew")
+        gh_lbl.bind("<Button-1>", lambda e, url=github: webbrowser.open_new(url))
+
 class ContactPage(customtkinter.CTkToplevel):
     def __init__(self, parent):
         super().__init__(parent)
-        def open_link(url):
-            webbrowser.open_new(url)
-        self.title("Contact Page")
         screen_width = self.winfo_screenwidth()
-        screen_height = self.winfo_screenheight()       
-        self.geometry(f"{screen_width}x{screen_height}")  
-        self.rowconfigure(0, weight=0 )
-        self.rowconfigure(1, weight=0)
-        self.rowconfigure(2, weight=0)        
-        self.rowconfigure(3, weight=1)
-        self.columnconfigure(0, weight=0)
-        self.columnconfigure(1, weight=0)
-        self.columnconfigure(2, weight=0)
-        image_kia = Image.open("./kiarash.jpeg")  
-        image_kia = image_kia.resize((200, 200))  
-        photo = ImageTk.PhotoImage(image_kia)
-        image_label_kia = customtkinter.CTkLabel(self, image=photo, text="")
-        image_label_kia.image = photo  
-        image_label_kia.grid(row=0, column=0, padx=(250,100), pady=50, sticky="nsew")
-        image_asal = Image.open("./IMG_8581.JPG")  
-        image_asal = image_asal.resize((200, 200))  
-        photo = ImageTk.PhotoImage(image_asal)
-        image_label_asal = customtkinter.CTkLabel(self, image=photo, text="")
-        image_label_asal.image = photo  
-        image_label_asal.grid(row=0, column=1, padx=100, pady=50, sticky="nsew")
-        image_pari = Image.open("./2025-01-25 01.33.56.jpg")  
-        image_pari = image_pari.resize((200, 200)) 
-        photo = ImageTk.PhotoImage(image_pari)
-        image_label_pari = customtkinter.CTkLabel(self, image=photo, text="")
-        image_label_pari.image = photo  
-        image_label_pari.grid(row=0, column=2, padx=(100,250), pady=50, sticky="nsew")
-        
-        label_kia = customtkinter.CTkLabel(self, text="kiarash.dadpour@gmail.com", font=("Arial", 16))
-        label_kia.grid(row=1, column=0, padx=(250,100), pady=(50,5), sticky="nsew")
-        label_kia.bind("<Button-1>",lambda e: open_link("mailto:kiarash.dadpour@gmail.com"))
-        
-        label_kia2 = customtkinter.CTkLabel(self, text="https://github.com/KiarashDadpour", font=("Arial", 16))
-        label_kia2.grid(row=2, column=0, padx=(250,100), pady=10, sticky="nsew")
-        label_kia2.bind("<Button-1>",lambda e: open_link("https://github.com/KiarashDadpour"))
-        
-        
-        label_asal = customtkinter.CTkLabel(self, text="assalmahmodi82@gmail.com", font=("Arial", 16))
-        label_asal.grid(row=1, column=1, padx=(100,100), pady=(50,5), sticky="nsew")
-        label_asal.bind("<Button-1>",lambda e: open_link("mailto:assalmahmodi82@gmail.com"))
-        
-        label_asal2 = customtkinter.CTkLabel(self, text="https://github.com/AssalMahmodi", font=("Arial", 16))
-        label_asal2.grid(row=2, column=1, padx=(100,100), pady=10, sticky="nsew")
-        label_asal2.bind("<Button-1>",lambda e: open_link("https://github.com/AssalMahmodi"))
-        
-        
-        label_pari = customtkinter.CTkLabel(self, text="pari041503@gmail.com", font=("Arial", 16))
-        label_pari.grid(row=1, column=2, padx=(100,250), pady=(50,5), sticky="nsew")
-        label_pari.bind("<Button-1>",lambda e: open_link("mailto:pari041503@gmail.com"))
-        
-        label_pari2 = customtkinter.CTkLabel(self, text="https://github.com/pari041503", font=("Arial", 16))
-        label_pari2.grid(row=2, column=2, padx=(100,250), pady=10, sticky="nsew")
-        label_pari2.bind("<Button-1>",lambda e: open_link("https://github.com/pari041503"))
-        
-        close_button = customtkinter.CTkButton(self, text="Close", command=self.destroy)
-        close_button.grid(row=3, column=1, pady=30, sticky="s")
+        screen_height = self.winfo_screenheight()
+        self.geometry(f"{screen_width}x{screen_height}")
+        self.minsize(900, 600)
+
+        # ریشهٔ گرید
+        self.grid_rowconfigure(0, weight=1)  # spacer بالا
+        self.grid_rowconfigure(1, weight=0)  # container کارت‌ها
+        self.grid_rowconfigure(2, weight=0)  # Close
+        self.grid_rowconfigure(3, weight=1)  # spacer پایین
+        self.grid_columnconfigure(0, weight=1)
+
+        # کانتینر اصلی (دلخواه: ScrollableFrame اگر محتوا زیاد شد)
+        container = customtkinter.CTkFrame(self, fg_color="transparent")
+        container.grid(row=1, column=0, sticky="nsew", padx=24, pady=0)
+
+        # سه ستون هم‌عرض
+        container.grid_rowconfigure(0, weight=1)  # spacer بالا
+        container.grid_rowconfigure(1, weight=0)  # ردیف کارت‌ها
+        container.grid_rowconfigure(2, weight=1)  # spacer پایین
+        container.grid_columnconfigure((0, 1, 2), weight=1, uniform="col")
+
+        # داده‌ها
+        contacts = [
+            {"img_path": "./kiarash.jpeg",
+             "email": "kiarash.dadpour@gmail.com",
+             "github": "https://github.com/KiarashDadpour"},
+            {"img_path": "./IMG_8581.JPG",
+             "email": "assalmahmodi82@gmail.com",
+             "github": "https://github.com/AssalMahmodi"},
+            {"img_path": "./2025-01-25 01.33.56.jpg",
+             "email": "pari041503@gmail.com",
+             "github": "https://github.com/pari041503"},
+        ]
+
+        # ساخت کارت‌ها
+        row_idx = 1
+        for col, c in enumerate(contacts):
+            card = ContactCard(container, **c, width=300, height=320)
+            card.grid(row=row_idx, column=col, padx=12, pady=12, sticky="n")
+
+        # دکمهٔ بستن (وسط پایین)
+        close_btn = customtkinter.CTkButton(self, text="Close", width=160, command=self.destroy)
+        close_btn.grid(row=3, column=0, pady=(150, 24), sticky="n")
+
+try:
+    import pandas as pd
+    HAS_PANDAS = True
+except Exception:
+    HAS_PANDAS = False
         
 def average(lst):
     return sum(lst) / len(lst)   
@@ -278,7 +290,7 @@ def fcfs(p, at: list, cbt: list, cs=1):
     while ready_queue:
         process = ready_queue.popleft()
 
-        if current_time < at[process]: 
+        if current_time < at[process]:
             current_time = at[process]
         start_time = current_time
         end_time = start_time + cbt[process]
@@ -291,13 +303,13 @@ def fcfs(p, at: list, cbt: list, cs=1):
         timeline.append((process + 1, start_time, end_time))
 
         current_time = end_time + cs
-    RT = TT
+    RT = WT
     return WT, TT, RT,  timeline
 
 def plot_gantt_fcfs(timeline, cs):
     fig = Figure(figsize=(10, 4), dpi=100)
     ax = fig.add_subplot(111)
-    half_cs = cs / 2  
+    half_cs = cs / 2
 
     for i, process in enumerate(timeline):
         index, start, end = process
@@ -341,7 +353,7 @@ def round_robin(p, at, cbt, cs, quantum):
     completed_processes = 0
     first_run = [True] * p  
 
-    for i in range(p):
+    for i in range(p): 
         if at1[i] <= current_time and cbt[i] > 0:
             if i not in ready_queue:
                 ready_queue.append(i)
@@ -359,7 +371,6 @@ def round_robin(p, at, cbt, cs, quantum):
 
         start_time = current_time
         running_time = min(quantum, cbt[current_process])
-
         current_time += running_time
         cbt[current_process] -= running_time
 
@@ -437,9 +448,9 @@ def spn(p, at: list, cbt: list, cs: int):
         current_time += cbt[shortest_process]
         TT[shortest_process] = current_time - at[shortest_process]
         WT[shortest_process] = TT[shortest_process] - cbt[shortest_process]
-
         completed[shortest_process] = True
         completed_count += 1
+        
         timeline.append((shortest_process + 1, start_time, current_time))
 
         current_time += cs
@@ -507,11 +518,11 @@ def hrrn(p, at, cbt, cs):
         ready_processes = find_ready_processes(p, at, current_time, completed)
 
         if len(ready_processes) == 0:
-            next_arrival = float('inf')
+            next_process_arrive = float('inf')
             for i in range(p):
                 if not completed[i]:
-                    next_arrival = min(next_arrival, at[i])
-            current_time = next_arrival
+                    next_process_arrive = min(next_process_arrive, at[i])
+            current_time = next_process_arrive
             continue
 
         rpr = calculate_rpr(ready_processes, current_time, at, cbt)
@@ -522,8 +533,8 @@ def hrrn(p, at, cbt, cs):
         current_time += cbt[max_index]
         end_time = current_time
 
-        TT[max_index] = end_time - at[max_index]  # Turnaround Time
-        WT[max_index] = TT[max_index] - cbt[max_index]  # Waiting Time
+        TT[max_index] = end_time - at[max_index]
+        WT[max_index] = TT[max_index] - cbt[max_index]
 
         completed[max_index] = True
         completed_count += 1
@@ -574,23 +585,19 @@ def plot_gantt_hrrn(timeline, cs):
 
     for i, process in enumerate(timeline):
         index, start, end = process
-        y_pos = index * 1.5  # Increase vertical spacing between processes
+        y_pos = index * 1.5
 
-        # Draw the process bar in blue
         ax.broken_barh([(start, end - start)], (y_pos - 0.4, 0.8), facecolors='tab:blue')
 
-        # Draw the second half of CS at the end of the current process
         if cs > 0 and i < len(timeline) - 1:
             cs_start = end
             ax.broken_barh([(cs_start, half_cs)], (y_pos - 0.4, 0.8), facecolors='tab:red', alpha=0.5)
 
-        # Draw the first half of CS at the start of the next process
         if cs > 0 and i < len(timeline) - 1:
             next_start = timeline[i + 1][1]
             cs_start_next = next_start - half_cs
             ax.broken_barh([(cs_start_next, half_cs)], ((timeline[i + 1][0] * 1.5) - 0.4, 0.8), facecolors='tab:orange', alpha=0.5)
 
-    # Add CS time at the end of the last process
     if cs > 0:
         last_process_end = timeline[-1][2]
         ax.broken_barh([(last_process_end, half_cs)], (y_pos - 0.4, 0.8), facecolors='tab:green', alpha=0.5)
@@ -628,12 +635,12 @@ def srtf(p, at, cbt, cs, quantum):
                 arrived_processes.append(i)
 
         if len(arrived_processes) == 0:
-            next_arrival = float('inf')
+            next_process_arrive = float('inf')
             for i in range(p):
                 if not completed[i]:
-                    next_arrival = min(next_arrival, at[i])
+                    next_process_arrive = min(next_process_arrive, at[i])
 
-            current_time = next_arrival
+            current_time = next_process_arrive
             continue
 
         current_process = find_shortest_process(arrived_processes, cbt1)
@@ -643,7 +650,6 @@ def srtf(p, at, cbt, cs, quantum):
             first_run[current_process] = True
 
         if current_running_time[current_process] >= quantum:
-            # Perform context switch and find next shortest process
             current_time += cs
             current_running_time[current_process] = 0
 
@@ -657,13 +663,13 @@ def srtf(p, at, cbt, cs, quantum):
 
             current_process = find_shortest_process(arrived_processes, cbt1)
 
-        execution_time = min(quantum - current_running_time[current_process], cbt1[current_process])
+        exe_time = min(quantum - current_running_time[current_process], cbt1[current_process])
 
-        current_time += execution_time
-        cbt1[current_process] -= execution_time
-        current_running_time[current_process] += execution_time
+        current_time += exe_time
+        cbt1[current_process] -= exe_time
+        current_running_time[current_process] += exe_time
 
-        timeline.append((current_process + 1, current_time - execution_time, current_time))
+        timeline.append((current_process + 1, current_time - exe_time, current_time))
 
         if cbt1[current_process] == 0:
             completed[current_process] = True
@@ -694,23 +700,19 @@ def plot_gantt_srtf(timeline, cs):
 
     for i, process in enumerate(timeline):
         index, start, end = process
-        y_pos = index * 1.5  # Increase vertical spacing between processes
+        y_pos = index * 1.5  
 
-        # Draw the process bar in blue
         ax.broken_barh([(start, end - start)], (y_pos - 0.4, 0.8), facecolors='tab:blue')
 
-        # Draw the second half of CS at the end of the current process
         if cs > 0 and i < len(timeline) - 1:
             cs_start = end
             ax.broken_barh([(cs_start, half_cs)], (y_pos - 0.4, 0.8), facecolors='tab:red', alpha=0.5)
 
-        # Draw the first half of CS at the start of the next process
         if cs > 0 and i < len(timeline) - 1:
             next_start = timeline[i + 1][1]
             cs_start_next = next_start - half_cs
             ax.broken_barh([(cs_start_next, half_cs)], ((timeline[i + 1][0] * 1.5) - 0.4, 0.8), facecolors='tab:orange', alpha=0.5)
 
-    # Add CS time at the end of the last process
     if cs > 0:
         last_process_end = timeline[-1][2]
         ax.broken_barh([(last_process_end, half_cs)], (y_pos - 0.4, 0.8), facecolors='tab:green', alpha=0.5)
@@ -727,7 +729,7 @@ def plot_gantt_srtf(timeline, cs):
     ax.set_title("SRTF Gantt Chart")
     return fig
 
-### Non_PreemptiveـPriority
+### NPP
 def get_highest_priority_process(ready_queue, priorities1):
     highest_priority = float('inf')
     selected_process = None
@@ -1027,7 +1029,6 @@ def preemptive(p, at, cbt, priorities, quantum, cs=1):
     priorities1 = priorities.copy()
 
     while completed_processes < p:
-        # Add new arrived processes to ready queue
         for i in range(p):
             if at[i] <= current_time and i not in ready_queue and cbt1[i] > 0:
                 ready_queue.append(i)
@@ -1038,25 +1039,24 @@ def preemptive(p, at, cbt, priorities, quantum, cs=1):
 
         selected_process = get_highest_priority_process(ready_queue, priorities1)
 
-        # Record first response time
         if not first_response[selected_process]:
             RT[selected_process] = current_time - at[selected_process]
             first_response[selected_process] = True
 
-        execution_time = min(quantum, cbt1[selected_process])
+        exe_time = min(quantum, cbt1[selected_process])
 
-        next_arrival = float('inf')
+        next_process_arrive = float('inf')
         for i in range(p):
-            if at[i] > current_time and at[i] < current_time + execution_time and cbt1[i] > 0:
+            if at[i] > current_time and at[i] < current_time + exe_time and cbt1[i] > 0: # not in Q and
                 if priorities1[i] < priorities1[selected_process]:
-                    next_arrival = min(next_arrival, at[i])
+                    next_process_arrive = min(next_process_arrive, at[i])
 
-        if next_arrival != float('inf'):
-            execution_time = next_arrival - current_time
+        if next_process_arrive != float('inf'):
+            exe_time = next_process_arrive - current_time
 
-        timeline.append((selected_process + 1, current_time, current_time + execution_time))
-        cbt1[selected_process] -= execution_time
-        current_time += execution_time
+        timeline.append((selected_process + 1, current_time, current_time + exe_time))
+        cbt1[selected_process] -= exe_time
+        current_time += exe_time
 
         ready_queue.remove(selected_process)
 
@@ -1132,38 +1132,69 @@ class App(customtkinter.CTk):
                 ## non pre-emptive radio buttons 
         # FCFS
         FCFS=customtkinter.CTkRadioButton(self.tabview.tab("Non pre-emptive"),text=f"FCFS",variable=self.radio_var_non_preemptive,value=f"FCFS")
-        FCFS.pack(pady=(30,10), padx=(5,123))
         # SPN
         SPN=customtkinter.CTkRadioButton(self.tabview.tab("Non pre-emptive"),text=f"SPN",variable=self.radio_var_non_preemptive,value=f"SPN")
-        SPN.pack(pady=10,padx=(5,123))
         # HRRN
         HRRN=customtkinter.CTkRadioButton(self.tabview.tab("Non pre-emptive"),text=f"HRRN",variable=self.radio_var_non_preemptive,value=f"HRRN")
-        HRRN.pack(pady=10,padx=(5,123))
         # Non_PreemptiveـPriority
-        Non_PreemptiveـPriority=customtkinter.CTkRadioButton(self.tabview.tab("Non pre-emptive"),text=f"Non-Preemptive Priority (NPP)",variable=self.radio_var_non_preemptive,value=f"Non-Preemptive Priority")
-        Non_PreemptiveـPriority.pack(pady=10)
-                ## non pre-emptive button
+        Non_Preemptive_Priority=customtkinter.CTkRadioButton(self.tabview.tab("Non pre-emptive"),text=f"Non-Preemptive Priority (NPP)",variable=self.radio_var_non_preemptive,value=f"Non-Preemptive Priority")
+        ## non pre-emptive button
         self.show_button_non_preemptive = customtkinter.CTkButton(self.tabview.tab("Non pre-emptive"),text="choose",command=self.frame0_3)
-        self.show_button_non_preemptive.pack(pady=(100,10))
-            ## Preemptive Tab
+        
+        
+        tab = self.tabview.tab("Non pre-emptive")
+
+        FCFS.grid(row=0, column=0, sticky="w", pady=(30,10), padx=10)
+        SPN.grid(row=1, column=0, sticky="w", pady=10, padx=10)
+        HRRN.grid(row=2, column=0, sticky="w", pady=10, padx=10)
+        Non_Preemptive_Priority.grid(row=3, column=0, sticky="w", pady=10, padx=10)
+
+        self.show_button_non_preemptive.grid(row=4, column=0, sticky="w", pady=(100,10), padx=10)
+
+
+        # Preemptive Tab
         self.tabview.add("Pre-emptive")
         self.radio_var_preemptive = customtkinter.StringVar(value="Pre-emptive")
-                ## pre-emptive radio buttons
-        # RR                      
-        RR=customtkinter.CTkRadioButton(self.tabview.tab("Pre-emptive"),text=f"RR",variable=self.radio_var_preemptive,value=f"RR")
-        RR.pack(pady=(30,10),padx=(5,77))
+
+        tab = self.tabview.tab("Pre-emptive")
+
+        # RR
+        RR = customtkinter.CTkRadioButton(
+            tab, text="RR", variable=self.radio_var_preemptive, value="RR"
+        )
+        RR.grid(row=0, column=0, sticky="w", pady=(30, 10), padx=10)
+
         # SRTF
-        SRTF=customtkinter.CTkRadioButton(self.tabview.tab("Pre-emptive"),text=f"SRTF",variable=self.radio_var_preemptive,value=f"SRTF")
-        SRTF.pack(pady=10,padx=(5,77))
+        SRTF = customtkinter.CTkRadioButton(
+            tab, text="SRTF", variable=self.radio_var_preemptive, value="SRTF"
+        )
+        SRTF.grid(row=1, column=0, sticky="w", pady=10, padx=10)
+
         # MLFQ
-        MLFQ=customtkinter.CTkRadioButton(self.tabview.tab("Pre-emptive"),text=f"MLFQ",variable=self.radio_var_preemptive,value=f"MLFQ", command=self.MLFQPage)
-        MLFQ.pack(pady=10,padx=(5,77))
-        # PreemptiveـPriority
-        PreemptiveـPriority=customtkinter.CTkRadioButton(self.tabview.tab("Pre-emptive"),text=f"Preemptive Priority (PP)",variable=self.radio_var_preemptive,value=f"Preemptive Priority")
-        PreemptiveـPriority.pack(pady=10)
-                ## pre-emptive button
-        self.show_button_preemptive = customtkinter.CTkButton(self.tabview.tab("Pre-emptive"),text="choose",command=self.frame0_2)
-        self.show_button_preemptive.pack(pady=(100,10))
+        MLFQ = customtkinter.CTkRadioButton(
+            tab, text="MLFQ", variable=self.radio_var_preemptive, value="MLFQ", command=self.MLFQPage
+        )
+        MLFQ.grid(row=2, column=0, sticky="w", pady=10, padx=10)
+
+        # Preemptive Priority
+        Preemptive_Priority = customtkinter.CTkRadioButton(
+            tab, text="Preemptive Priority (PP)", variable=self.radio_var_preemptive, value="Preemptive Priority"
+        )
+        Preemptive_Priority.grid(row=3, column=0, sticky="w", pady=10, padx=10)
+
+        # Choose button
+        self.show_button_preemptive = customtkinter.CTkButton(
+            tab, text="choose", command=self.frame0_2
+        )
+        self.show_button_preemptive.grid(row=4, column=0, sticky="w", pady=(100, 10), padx=10)
+
+        # Ensure column 0 stays left-aligned, and column 1 expands if needed
+        tab.grid_columnconfigure(0, weight=0)
+        tab.grid_columnconfigure(1, weight=1)
+
+
+
+        
         ## frame0 in slide bar (Entry)
         self.frame0 = customtkinter.CTkFrame(self.sidebar_frame)
         self.frame0.grid(row=1, column=0, sticky="nsew", padx=10, pady=(5, 15))
